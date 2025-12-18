@@ -191,6 +191,12 @@
                     text = m[1];
                 }
                 statusElement.innerHTML = text;
+
+                // Hide spinner and status when loading is complete
+                if (!text) {
+                    spinnerElement.style.display = 'none';
+                    statusElement.style.display = 'none';
+                }
             },
             totalDependencies: 0,
             monitorRunDependencies: function(left) {
