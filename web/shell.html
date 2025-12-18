@@ -49,6 +49,26 @@
             margin: 0 auto;
             background: #0f1419;
             border-radius: 4px;
+            cursor: pointer;
+        }
+
+        #canvas-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.7);
+            padding: 30px 50px;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 24px;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+
+        #canvas-overlay.hidden {
+            opacity: 0;
+            display: none;
         }
 
         .controls {
@@ -128,10 +148,11 @@
         <h1>Delphinis Engine</h1>
         <div class="subtitle">A Simple 2D Game Engine with Pure ECS Architecture</div>
 
-        <div class="game-container">
+        <div class="game-container" style="position: relative;">
             <div class="spinner" id="spinner"></div>
             <div id="status">Downloading...</div>
 
+            <div id="canvas-overlay" class="hidden">Click to Start</div>
             <canvas class="emscripten" id="canvas" oncontextmenu="event.preventDefault()" tabindex=-1></canvas>
 
             <div class="controls">
@@ -155,6 +176,19 @@
     <script type='text/javascript'>
         var statusElement = document.getElementById('status');
         var spinnerElement = document.getElementById('spinner');
+        var canvasOverlay = document.getElementById('canvas-overlay');
+        var canvas = document.getElementById('canvas');
+        var gameStarted = false;
+
+        // Click handler to start the game
+        // Calls the C++ startGame() function and hides the overlay
+        canvas.addEventListener('click', function() {
+            if (!gameStarted && typeof Module._startGame === 'function') {
+                Module._startGame();
+                canvasOverlay.classList.add('hidden');
+                gameStarted = true;
+            }
+        });
 
         var Module = {
             preRun: [],
@@ -193,9 +227,11 @@
                 statusElement.innerHTML = text;
 
                 // Hide spinner and status when loading is complete
+                // Show "Click to Start" overlay
                 if (!text) {
                     spinnerElement.style.display = 'none';
                     statusElement.style.display = 'none';
+                    canvasOverlay.classList.remove('hidden');
                 }
             },
             totalDependencies: 0,

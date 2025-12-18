@@ -1,6 +1,7 @@
 #ifdef __EMSCRIPTEN__
     #include <GLES3/gl3.h>
     #include <emscripten.h>
+    #include <emscripten/html5.h>
 #else
     #include <GL/glew.h>
 #endif
@@ -29,6 +30,20 @@
 #include "delphinis/systems/RenderSystem.h"
 
 using namespace delphinis;
+
+#ifdef __EMSCRIPTEN__
+// Global flag to control game loop execution in web builds
+// Prevents game from starting until user clicks on canvas
+static bool gameStarted = false;
+
+// JavaScript-callable function to start the game
+extern "C" {
+    EMSCRIPTEN_KEEPALIVE
+    void startGame() {
+        gameStarted = true;
+    }
+}
+#endif
 
 void framebufferSizeCallback(GLFWwindow*, int width, int height) {
     glViewport(0, 0, width, height);
@@ -141,6 +156,18 @@ int main() {
 
     // Game loop function
     auto mainLoop = [&]() {
+#ifdef __EMSCRIPTEN__
+        // In web builds, pause game logic until user clicks to start
+        // This prevents the ball from moving before the player is ready
+        if (!gameStarted) {
+            // Still render the initial state and handle window events
+            renderSystem.update(world, 0.0f);
+            glfwSwapBuffers(window);
+            glfwPollEvents();
+            return;
+        }
+#endif
+
         double currentTime = glfwGetTime();
         float frameTime = static_cast<float>(currentTime - lastTime);
         lastTime = currentTime;
