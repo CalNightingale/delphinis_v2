@@ -136,10 +136,11 @@ int main() {
 
     // Fixed timestep game loop
     const float FIXED_DT = 1.0f / 60.0f;
-    float accumulator = 0.0f;
-    double lastTime = glfwGetTime();
+    static float accumulator = 0.0f;
+    static double lastTime = glfwGetTime();
 
-    while (!glfwWindowShouldClose(window)) {
+    // Game loop function
+    auto mainLoop = [&]() {
         double currentTime = glfwGetTime();
         float frameTime = static_cast<float>(currentTime - lastTime);
         lastTime = currentTime;
@@ -170,7 +171,20 @@ int main() {
 
         glfwSwapBuffers(window);
         glfwPollEvents();
+    };
+
+#ifdef __EMSCRIPTEN__
+    // For Emscripten, use the browser's request animation frame
+    emscripten_set_main_loop_arg([](void* arg) {
+        auto& loop = *static_cast<decltype(mainLoop)*>(arg);
+        loop();
+    }, &mainLoop, 0, 1);
+#else
+    // For native builds, use traditional game loop
+    while (!glfwWindowShouldClose(window)) {
+        mainLoop();
     }
+#endif
 
     glfwTerminate();
     return 0;

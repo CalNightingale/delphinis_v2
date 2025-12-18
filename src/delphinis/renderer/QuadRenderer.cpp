@@ -3,8 +3,9 @@
 
 namespace delphinis {
 
-static const char* vertexShaderSource = R"(
-#version 330 core
+#ifdef __EMSCRIPTEN__
+static const char* vertexShaderSource = R"(#version 300 es
+precision mediump float;
 layout (location = 0) in vec2 aPos;
 
 uniform mat4 uProjection;
@@ -15,8 +16,8 @@ void main() {
 }
 )";
 
-static const char* fragmentShaderSource = R"(
-#version 330 core
+static const char* fragmentShaderSource = R"(#version 300 es
+precision mediump float;
 out vec4 FragColor;
 
 uniform vec3 uColor;
@@ -25,6 +26,28 @@ void main() {
     FragColor = vec4(uColor, 1.0);
 }
 )";
+#else
+static const char* vertexShaderSource = R"(#version 330 core
+layout (location = 0) in vec2 aPos;
+
+uniform mat4 uProjection;
+uniform mat4 uModel;
+
+void main() {
+    gl_Position = uProjection * uModel * vec4(aPos, 0.0, 1.0);
+}
+)";
+
+static const char* fragmentShaderSource = R"(#version 330 core
+out vec4 FragColor;
+
+uniform vec3 uColor;
+
+void main() {
+    FragColor = vec4(uColor, 1.0);
+}
+)";
+#endif
 
 QuadRenderer::QuadRenderer()
     : m_vao(0), m_vbo(0), m_initialized(false) {
