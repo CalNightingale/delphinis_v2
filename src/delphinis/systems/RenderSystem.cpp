@@ -2,7 +2,12 @@
 #include "delphinis/ecs/World.h"
 #include "delphinis/components/Transform.h"
 #include "delphinis/components/Sprite.h"
-#include <GL/glew.h>
+
+#ifdef __EMSCRIPTEN__
+    #include <GLES3/gl3.h>
+#else
+    #include <GL/glew.h>
+#endif
 
 namespace delphinis {
 

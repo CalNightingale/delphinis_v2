@@ -6,32 +6,54 @@ function(add_game GAME_NAME)
     # Create executable
     add_executable(${GAME_NAME} ${GAME_SOURCES})
 
-    # Link against engine library if it exists
-    if(TARGET delphinis_engine)
+    if(EMSCRIPTEN)
+        # Emscripten-specific settings
         target_link_libraries(${GAME_NAME} delphinis_engine)
-    else()
-        # If no engine library yet, link dependencies directly
-        target_link_libraries(${GAME_NAME}
-            glfw
-            GLEW::GLEW
-            ${OPENGL_LIBRARIES}
+
+        # Set output to HTML
+        set_target_properties(${GAME_NAME} PROPERTIES SUFFIX ".html")
+
+        # Emscripten linker flags
+        target_link_options(${GAME_NAME} PRIVATE
+            -sUSE_GLFW=3
+            -sFULL_ES3=1
+            -sALLOW_MEMORY_GROWTH=1
+            -sMAXIMUM_MEMORY=512MB
+            --shell-file ${CMAKE_SOURCE_DIR}/web/shell.html
         )
 
-        # Platform-specific settings
-        if(APPLE)
-            target_link_libraries(${GAME_NAME}
-                "-framework Cocoa"
-                "-framework IOKit"
-                "-framework CoreVideo"
-            )
-        endif()
-    endif()
-
-    # Compiler warnings
-    if(MSVC)
-        target_compile_options(${GAME_NAME} PRIVATE /W4)
+        target_compile_options(${GAME_NAME} PRIVATE
+            -sUSE_GLFW=3
+        )
     else()
-        target_compile_options(${GAME_NAME} PRIVATE -Wall -Wextra -Wpedantic)
+        # Native build
+        # Link against engine library if it exists
+        if(TARGET delphinis_engine)
+            target_link_libraries(${GAME_NAME} delphinis_engine)
+        else()
+            # If no engine library yet, link dependencies directly
+            target_link_libraries(${GAME_NAME}
+                glfw
+                GLEW::GLEW
+                ${OPENGL_LIBRARIES}
+            )
+
+            # Platform-specific settings
+            if(APPLE)
+                target_link_libraries(${GAME_NAME}
+                    "-framework Cocoa"
+                    "-framework IOKit"
+                    "-framework CoreVideo"
+                )
+            endif()
+        endif()
+
+        # Compiler warnings
+        if(MSVC)
+            target_compile_options(${GAME_NAME} PRIVATE /W4)
+        else()
+            target_compile_options(${GAME_NAME} PRIVATE -Wall -Wextra -Wpedantic)
+        endif()
     endif()
 endfunction()
 

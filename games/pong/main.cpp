@@ -1,4 +1,10 @@
-#include <GL/glew.h>
+#ifdef __EMSCRIPTEN__
+    #include <GLES3/gl3.h>
+    #include <emscripten.h>
+#else
+    #include <GL/glew.h>
+#endif
+
 #include <GLFW/glfw3.h>
 #include <iostream>
 
@@ -58,11 +64,13 @@ int main() {
     glfwMakeContextCurrent(window);
     glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);
 
+#ifndef __EMSCRIPTEN__
     glewExperimental = GL_TRUE;
     if (glewInit() != GLEW_OK) {
         std::cerr << "Failed to initialize GLEW" << std::endl;
         return -1;
     }
+#endif
 
     int windowWidth = 800;
     int windowHeight = 600;

@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delphinis Engine - Pong</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #1a1a2e;
+            color: #eee;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 900px;
+            width: 100%;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #6c63ff;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #aaa;
+            margin-bottom: 30px;
+        }
+
+        .game-container {
+            position: relative;
+            background: #16213e;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        canvas.emscripten {
+            display: block;
+            margin: 0 auto;
+            background: #0f1419;
+            border-radius: 4px;
+        }
+
+        .controls {
+            margin-top: 20px;
+            padding: 15px;
+            background: #0f1419;
+            border-radius: 4px;
+        }
+
+        .controls h3 {
+            margin-top: 0;
+            color: #6c63ff;
+        }
+
+        .controls ul {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+
+        .controls li {
+            margin: 5px 0;
+        }
+
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .footer a {
+            color: #6c63ff;
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        #output {
+            margin-top: 20px;
+            padding: 10px;
+            background: #0f1419;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .spinner {
+            height: 50px;
+            width: 50px;
+            margin: 20px auto;
+            animation: rotation 0.8s linear infinite;
+            border-left: 10px solid #6c63ff;
+            border-right: 10px solid #6c63ff;
+            border-bottom: 10px solid #6c63ff;
+            border-top: 10px solid transparent;
+            border-radius: 100%;
+        }
+
+        @keyframes rotation {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        #status {
+            text-align: center;
+            margin: 20px 0;
+            color: #aaa;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Delphinis Engine</h1>
+        <div class="subtitle">A Simple 2D Game Engine with Pure ECS Architecture</div>
+
+        <div class="game-container">
+            <div class="spinner" id="spinner"></div>
+            <div id="status">Downloading...</div>
+
+            <canvas class="emscripten" id="canvas" oncontextmenu="event.preventDefault()" tabindex=-1></canvas>
+
+            <div class="controls">
+                <h3>Controls</h3>
+                <ul>
+                    <li><strong>W / S</strong> - Move left paddle up/down</li>
+                    <li><strong>ESC</strong> - (Desktop mode: exit)</li>
+                </ul>
+                <p>Play against the AI! Try to bounce the ball past the opponent's paddle.</p>
+            </div>
+
+            <div id="output"></div>
+        </div>
+
+        <div class="footer">
+            <p>Built with C++17 and compiled to WebAssembly using Emscripten</p>
+            <p><a href="https://github.com/anthropics/claude-code" target="_blank">Powered by Claude Code</a></p>
+        </div>
+    </div>
+
+    <script type='text/javascript'>
+        var statusElement = document.getElementById('status');
+        var spinnerElement = document.getElementById('spinner');
+
+        var Module = {
+            preRun: [],
+            postRun: [],
+            print: (function() {
+                var element = document.getElementById('output');
+                if (element) element.value = '';
+                return function(text) {
+                    if (arguments.length > 1) text = Array.prototype.slice.call(arguments).join(' ');
+                    console.log(text);
+                    if (element) {
+                        element.innerHTML += text + "\n";
+                        element.scrollTop = element.scrollHeight;
+                    }
+                };
+            })(),
+            canvas: (function() {
+                var canvas = document.getElementById('canvas');
+                canvas.addEventListener("webglcontextlost", function(e) {
+                    alert('WebGL context lost. You will need to reload the page.');
+                    e.preventDefault();
+                }, false);
+                return canvas;
+            })(),
+            setStatus: function(text) {
+                if (!Module.setStatus.last) Module.setStatus.last = { time: Date.now(), text: '' };
+                if (text === Module.setStatus.last.text) return;
+                var m = text.match(/([^(]+)\((\d+(\.\d+)?)\/(\d+)\)/);
+                var now = Date.now();
+                if (m && now - Module.setStatus.last.time < 30) return;
+                Module.setStatus.last.time = now;
+                Module.setStatus.last.text = text;
+                if (m) {
+                    text = m[1];
+                }
+                statusElement.innerHTML = text;
+            },
+            totalDependencies: 0,
+            monitorRunDependencies: function(left) {
+                this.totalDependencies = Math.max(this.totalDependencies, left);
+                Module.setStatus(left ? 'Preparing... (' + (this.totalDependencies-left) + '/' + this.totalDependencies + ')' : 'All downloads complete.');
+            }
+        };
+        Module.setStatus('Downloading...');
+        window.onerror = function() {
+            Module.setStatus('Exception thrown, see JavaScript console');
+            spinnerElement.style.display = 'none';
+            Module.setStatus = function(text) {
+                if (text) console.error('[post-exception status] ' + text);
+            };
+        };
+    </script>
+    {{{ SCRIPT }}}
+</body>
+</html>
