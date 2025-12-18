@@ -37,29 +37,33 @@ include_directories(
     ${OPENGL_INCLUDE_DIR}
 )
 
-# Main executable
-add_executable(delphinis
-    src/main.cpp
-)
+# Engine library (will be populated as we add engine code)
+file(GLOB_RECURSE ENGINE_SOURCES "src/*.cpp")
+if(ENGINE_SOURCES)
+    add_library(delphinis_engine STATIC ${ENGINE_SOURCES})
 
-target_link_libraries(delphinis
-    glfw
-    GLEW::GLEW
-    ${OPENGL_LIBRARIES}
-)
-
-# Platform-specific settings
-if(APPLE)
-    target_link_libraries(delphinis
-        "-framework Cocoa"
-        "-framework IOKit"
-        "-framework CoreVideo"
+    target_link_libraries(delphinis_engine
+        glfw
+        GLEW::GLEW
+        ${OPENGL_LIBRARIES}
     )
+
+    # Platform-specific settings for engine
+    if(APPLE)
+        target_link_libraries(delphinis_engine
+            "-framework Cocoa"
+            "-framework IOKit"
+            "-framework CoreVideo"
+        )
+    endif()
+
+    # Compiler warnings
+    if(MSVC)
+        target_compile_options(delphinis_engine PRIVATE /W4)
+    else()
+        target_compile_options(delphinis_engine PRIVATE -Wall -Wextra -Wpedantic)
+    endif()
 endif()
 
-# Compiler warnings
-if(MSVC)
-    target_compile_options(delphinis PRIVATE /W4)
-else()
-    target_compile_options(delphinis PRIVATE -Wall -Wextra -Wpedantic)
-endif()
+# Add games subdirectory
+add_subdirectory(games)

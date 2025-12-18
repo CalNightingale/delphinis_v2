@@ -1,0 +1,24 @@
+#pragma once
+
+#include "delphinis/ecs/System.h"
+#include "delphinis/ecs/Entity.h"
+#include "delphinis/math/Vec2.h"
+
+namespace delphinis {
+
+struct Transform;
+struct BoxCollider;
+
+class CollisionSystem : public System {
+public:
+    void update(World& world, float deltaTime) override;
+
+private:
+    bool checkAABB(const Transform& t1, const BoxCollider& c1,
+                   const Transform& t2, const BoxCollider& c2) const;
+
+    Vec2 getCollisionNormal(const Transform& t1, const BoxCollider& c1,
+                            const Transform& t2, const BoxCollider& c2) const;
+};
+
+} // namespace delphinis

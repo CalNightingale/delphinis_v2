@@ -19,10 +19,11 @@ cmake ..
 make
 ```
 
-### Run
+### Run Games
 
 ```bash
-./bin/delphinis
+./bin/hello   # Hello world demo
+./bin/pong    # Pong (stub)
 ```
 
 Press ESC to exit.
@@ -32,13 +33,29 @@ Press ESC to exit.
 ```
 delphinis_v2/
 ├── CLAUDE.md           # Design philosophy and guidelines
-├── CMakeLists.txt      # Build configuration
-├── src/                # Source files
-│   └── main.cpp       # Entry point
-├── include/            # Header files
-├── examples/           # Example games
-└── tests/             # Test programs
+├── CMakeLists.txt      # Main build configuration
+├── src/                # Engine source files
+├── include/            # Engine headers
+├── games/              # Game implementations
+│   ├── CMakeLists.txt # Game build configuration
+│   ├── hello/         # Hello world demo
+│   │   └── main.cpp
+│   └── pong/          # Pong game
+│       └── main.cpp
+├── examples/           # Tutorial examples
+└── tests/              # Test programs
 ```
+
+## Adding a New Game
+
+Creating a new game is simple:
+
+1. Create a directory under `games/` with your game name
+2. Add a `main.cpp` file in that directory
+3. Add one line to `games/CMakeLists.txt`: `add_game(your_game_name)`
+4. Rebuild: `make`
+
+Your game will automatically link against the engine library and dependencies.
 
 ## Dependencies
 
@@ -48,4 +65,7 @@ delphinis_v2/
 
 ## Current Status
 
-Project initialized with basic OpenGL window rendering.
+- Project structure set up with engine/game separation
+- Build system configured for easy game creation
+- Basic OpenGL window rendering working
+- Multiple game binaries supported
