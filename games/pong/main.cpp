@@ -20,6 +20,7 @@
 #include "components/PaddleInput.h"
 #include "components/AIController.h"
 #include "components/Ball.h"
+#include "components/PaddleBoundary.h"
 
 // Systems
 #include "systems/InputSystem.h"
@@ -27,6 +28,7 @@
 #include "delphinis/systems/MovementSystem.h"
 #include "delphinis/systems/CollisionSystem.h"
 #include "systems/BallSystem.h"
+#include "systems/BoundarySystem.h"
 #include "delphinis/systems/RenderSystem.h"
 
 using namespace delphinis;
@@ -110,6 +112,7 @@ int main() {
     MovementSystem movementSystem;
     InputSystem inputSystem(window);
     AISystem aiSystem;
+    pong::BoundarySystem boundarySystem;
     CollisionSystem collisionSystem;
     BallSystem ballSystem;
 
@@ -128,6 +131,7 @@ int main() {
     world.addComponent(leftPaddle, BoxCollider{0.4f, 2.0f});
     world.addComponent(leftPaddle, Sprite{Vec2{0.4f, 2.0f}, Vec3{0.3f, 0.7f, 1.0f}});
     world.addComponent(leftPaddle, PaddleInput{GLFW_KEY_W, GLFW_KEY_S, 10.0f});
+    world.addComponent(leftPaddle, pong::PaddleBoundary{-viewHeight/2 + 0.5f, viewHeight/2 - 0.5f});
 
     // Create Right Paddle (AI)
     Entity rightPaddle = world.createEntity();
@@ -136,6 +140,7 @@ int main() {
     world.addComponent(rightPaddle, BoxCollider{0.4f, 2.0f});
     world.addComponent(rightPaddle, Sprite{Vec2{0.4f, 2.0f}, Vec3{1.0f, 0.3f, 0.3f}});
     world.addComponent(rightPaddle, AIController{8.0f, ball});
+    world.addComponent(rightPaddle, pong::PaddleBoundary{-viewHeight/2 + 0.5f, viewHeight/2 - 0.5f});
 
     // Create Top Wall
     Entity topWall = world.createEntity();
@@ -187,6 +192,7 @@ int main() {
             inputSystem.update(world, FIXED_DT);
             aiSystem.update(world, FIXED_DT);
             movementSystem.update(world, FIXED_DT);
+            boundarySystem.update(world, FIXED_DT);
             collisionSystem.update(world, FIXED_DT);
             ballSystem.update(world, FIXED_DT);
 
