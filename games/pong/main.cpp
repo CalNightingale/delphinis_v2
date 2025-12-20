@@ -8,6 +8,7 @@
 
 #include <GLFW/glfw3.h>
 #include <iostream>
+#include <string>
 
 // ECS
 #include "delphinis/ecs/World.h"
@@ -154,6 +155,11 @@ int main() {
     static float accumulator = 0.0f;
     static double lastTime = glfwGetTime();
 
+    // FPS counter
+    static int frameCount = 0;
+    static double fpsLastTime = glfwGetTime();
+    static int currentFPS = 0;
+
     // Game loop function
     auto mainLoop = [&]() {
 #ifdef __EMSCRIPTEN__
@@ -198,6 +204,18 @@ int main() {
 
         glfwSwapBuffers(window);
         glfwPollEvents();
+
+        // Update FPS counter
+        frameCount++;
+        double fpsCurrentTime = glfwGetTime();
+        if (fpsCurrentTime - fpsLastTime >= 0.5) {
+            currentFPS = static_cast<int>(frameCount / (fpsCurrentTime - fpsLastTime));
+            frameCount = 0;
+            fpsLastTime = fpsCurrentTime;
+
+            std::string title = "Pong - Delphinis Engine (FPS: " + std::to_string(currentFPS) + ")";
+            glfwSetWindowTitle(window, title.c_str());
+        }
     };
 
 #ifdef __EMSCRIPTEN__
