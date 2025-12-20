@@ -17,16 +17,16 @@
 #include "delphinis/components/Velocity.h"
 #include "delphinis/components/BoxCollider.h"
 #include "delphinis/components/Sprite.h"
-#include "delphinis/components/PaddleInput.h"
-#include "delphinis/components/AIController.h"
-#include "delphinis/components/Ball.h"
+#include "components/PaddleInput.h"
+#include "components/AIController.h"
+#include "components/Ball.h"
 
 // Systems
-#include "delphinis/systems/InputSystem.h"
-#include "delphinis/systems/AISystem.h"
+#include "systems/InputSystem.h"
+#include "systems/AISystem.h"
 #include "delphinis/systems/MovementSystem.h"
 #include "delphinis/systems/CollisionSystem.h"
-#include "delphinis/systems/BallSystem.h"
+#include "systems/BallSystem.h"
 #include "delphinis/systems/RenderSystem.h"
 
 using namespace delphinis;

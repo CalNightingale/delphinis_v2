@@ -1,8 +1,8 @@
-#include "delphinis/systems/AISystem.h"
-#include "delphinis/ecs/World.h"
-#include "delphinis/components/AIController.h"
-#include "delphinis/components/Transform.h"
-#include "delphinis/components/Velocity.h"
+#include "AISystem.h"
+#include "../../../include/delphinis/ecs/World.h"
+#include "../components/AIController.h"
+#include "../../../include/delphinis/components/Transform.h"
+#include "../../../include/delphinis/components/Velocity.h"
 #include <cmath>
 
 namespace delphinis {

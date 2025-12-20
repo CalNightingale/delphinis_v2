@@ -1,10 +1,13 @@
 # Helper function to add a game executable
 function(add_game GAME_NAME)
-    # Get all source files for this game
-    file(GLOB GAME_SOURCES "${GAME_NAME}/*.cpp")
+    # Get all source files for this game (including subdirectories)
+    file(GLOB_RECURSE GAME_SOURCES "${GAME_NAME}/*.cpp")
 
     # Create executable
     add_executable(${GAME_NAME} ${GAME_SOURCES})
+
+    # Include game-specific directories for headers
+    target_include_directories(${GAME_NAME} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/${GAME_NAME}")
 
     if(EMSCRIPTEN)
         # Emscripten-specific settings

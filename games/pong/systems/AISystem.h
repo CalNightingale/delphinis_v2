@@ -1,6 +1,6 @@
 #pragma once
 
-#include "delphinis/ecs/System.h"
+#include "../../../include/delphinis/ecs/System.h"
 
 namespace delphinis {
 

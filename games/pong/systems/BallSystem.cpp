@@ -1,8 +1,8 @@
-#include "delphinis/systems/BallSystem.h"
-#include "delphinis/ecs/World.h"
-#include "delphinis/components/Ball.h"
-#include "delphinis/components/Transform.h"
-#include "delphinis/components/Velocity.h"
+#include "BallSystem.h"
+#include "../../../include/delphinis/ecs/World.h"
+#include "../components/Ball.h"
+#include "../../../include/delphinis/components/Transform.h"
+#include "../../../include/delphinis/components/Velocity.h"
 #include <cmath>
 
 namespace delphinis {

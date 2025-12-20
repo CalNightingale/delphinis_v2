@@ -1,7 +1,7 @@
-#include "delphinis/systems/InputSystem.h"
-#include "delphinis/ecs/World.h"
-#include "delphinis/components/PaddleInput.h"
-#include "delphinis/components/Velocity.h"
+#include "InputSystem.h"
+#include "../../../include/delphinis/ecs/World.h"
+#include "../components/PaddleInput.h"
+#include "../../../include/delphinis/components/Velocity.h"
 
 namespace delphinis {
 
