@@ -4,7 +4,7 @@ A simple, elegant 2D game engine built in C++ using pure ECS architecture.
 
 ## Play Online
 
-**[Play Pong in your browser!](https://your-username.github.io/delphinis_v2/)** (Update with your GitHub Pages URL)
+**[Play Pong in your browser!](https://CalNightingale.github.io/delphinis_v2/)**
 
 The game is compiled to WebAssembly and runs directly in your browser with no plugins required.
 
