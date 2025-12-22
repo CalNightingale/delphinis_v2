@@ -70,7 +70,7 @@ int main() {
     Camera camera(20.0f, 15.0f);
 
     // Create TextRenderingSystem
-    TextRenderingSystem textRenderSystem(camera);
+    TextRenderingSystem textRenderSystem(camera, "../games/hello/assets/bit5x3.ttf");
 
     // Create centered text entity
     // Camera viewport is 20x15 world units, so 0.5 units = ~3% of viewport height

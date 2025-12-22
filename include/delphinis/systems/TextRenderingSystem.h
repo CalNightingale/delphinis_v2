@@ -9,7 +9,7 @@ namespace delphinis {
 
 class TextRenderingSystem : public System {
 public:
-    TextRenderingSystem(Camera& camera);
+    TextRenderingSystem(Camera& camera, const char* fontPath);
 
     void update(World& world, float deltaTime) override;
 
