@@ -2,11 +2,11 @@
 #include <GLFW/glfw3.h>
 #include <iostream>
 
-#include "delphinis/ecs/World.h"
-#include "delphinis/components/Transform.h"
-#include "delphinis/components/Text.h"
+#include "delphinis/screens/ScreenManager.h"
 #include "delphinis/systems/TextRenderingSystem.h"
 #include "delphinis/renderer/Camera.h"
+#include "HelloScreen.h"
+#include "SecondScreen.h"
 
 using namespace delphinis;
 
@@ -61,38 +61,35 @@ int main() {
 
     std::cout << "Delphinis Engine v0.1.0" << std::endl;
     std::cout << "OpenGL Version: " << glGetString(GL_VERSION) << std::endl;
-    std::cout << "Press ESC to exit" << std::endl;
+    std::cout << "Press ESC to pop screen (exit when all screens are gone)" << std::endl;
 
-    // Create ECS World
-    World world;
-
-    // Create Camera
+    // Create Camera and TextRenderingSystem (owned by main.cpp, shared by screens)
     Camera camera(20.0f, 15.0f);
 
-    // Create TextRenderingSystem
 #ifdef __EMSCRIPTEN__
     TextRenderingSystem textRenderSystem(camera, "/games/hello/assets/bit5x3.ttf");
 #else
     TextRenderingSystem textRenderSystem(camera, "../games/hello/assets/bit5x3.ttf");
 #endif
 
-    // Create centered text entity
-    // Camera viewport is 20x15 world units, so 0.5 units = ~3% of viewport height
-    Entity helloText = world.createEntity();
-    world.addComponent(helloText, Transform{{0.0f, 0.0f}});  // Center of screen
-    world.addComponent(helloText, Text{"hello world!", Vec3{1.0f, 1.0f, 0.3f}, 2.5f, TextAlign::Center});
+    // Create screen manager
+    ScreenManager screenManager(window);
+
+    // Push initial screen
+    screenManager.pushScreen(std::make_unique<HelloScreen>(textRenderSystem));
+
+    // Immediately push second screen (automatic on startup)
+    screenManager.pushScreen(std::make_unique<SecondScreen>(textRenderSystem, screenManager));
 
     // Main render loop
     while (!glfwWindowShouldClose(window)) {
-        // Process input
+        // Process input (fallback if no screens handle it)
         processInput(window);
 
-        // Render
-        glClearColor(0.2f, 0.3f, 0.4f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
-
-        // Update text rendering system
-        textRenderSystem.update(world, 0.0f);
+        // Update and render screens
+        screenManager.handleInput();
+        screenManager.update(0.0f);
+        screenManager.render();
 
         // Swap buffers and poll events
         glfwSwapBuffers(window);
