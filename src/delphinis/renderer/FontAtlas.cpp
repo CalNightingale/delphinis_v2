@@ -12,7 +12,7 @@ namespace delphinis {
 
 FontAtlas::FontAtlas()
     : m_textureId(0)
-    , m_atlasWidth(512)
+    , m_atlasWidth(1024)
     , m_atlasHeight(512)
     , m_lineHeight(24.0f)
     , m_initialized(false) {
@@ -53,7 +53,8 @@ void FontAtlas::generateFontAtlas() {
     stbtt_bakedchar charData[numChars];
 
     // Bake font into bitmap
-    float pixelHeight = 20.0f;  // Font size in pixels
+    // Higher resolution = sharper text when scaled up
+    float pixelHeight = 48.0f;  // Font size in pixels
     int result = stbtt_BakeFontBitmap(
         _System_Library_Fonts_SFNSMono_ttf,  // Font data
         0,                                      // Font offset (0 for first font in file)
