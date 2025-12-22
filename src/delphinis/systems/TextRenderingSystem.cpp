@@ -46,14 +46,19 @@ void TextRenderingSystem::update(World& world, float deltaTime) {
                 float worldScale = pixelToWorld * text.scale;
 
                 // Calculate quad position and size in world coordinates
-                // Note: Y offset is typically negative, subtract to move glyphs up
-                Vec2 glyphPos = Vec2{
-                    cursorPos.x + glyph.offset.x * worldScale,
-                    cursorPos.y - glyph.offset.y * worldScale
-                };
                 Vec2 glyphSize = Vec2{
                     glyph.size.x * worldScale,
                     glyph.size.y * worldScale
+                };
+
+                // Position glyph on baseline
+                // cursorPos.y is the baseline
+                // glyph.offset.y is offset from baseline to top of glyph (typically negative)
+                // In OpenGL (Y-up), we need to flip: -offset.y gives top position above baseline
+                // Center of quad: top - height/2
+                Vec2 glyphPos = Vec2{
+                    cursorPos.x + glyph.offset.x * worldScale + glyphSize.x * 0.5f,
+                    cursorPos.y - (glyph.offset.y + glyph.size.y * 0.5f) * worldScale
                 };
 
                 // Draw glyph
