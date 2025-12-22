@@ -1,0 +1,45 @@
+name: Linux Build
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    name: Build on Linux
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential \
+            cmake \
+            libglew-dev \
+            libglfw3-dev \
+            libgl1-mesa-dev \
+            xorg-dev
+
+      - name: Create build directory
+        run: mkdir -p build
+
+      - name: Configure CMake
+        run: |
+          cd build
+          cmake .. -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build Pong
+        run: |
+          cd build
+          make pong -j$(nproc)
+
+      - name: Verify build output
+        run: |
+          ls -lh build/bin/
+          test -f build/bin/pong
