@@ -25,7 +25,7 @@ void StartMenuScreen::onEnter() {
     // Create instructions text
     Entity instructionsText = getWorld().createEntity();
     getWorld().addComponent(instructionsText, Transform{0.0f, -2.0f});
-    getWorld().addComponent(instructionsText, Text{"Press SPACE to start", Vec3{0.7f, 0.7f, 0.7f}, 1.0f, TextAlign::Center});
+    getWorld().addComponent(instructionsText, Text{"Press ENTER to start", Vec3{0.7f, 0.7f, 0.7f}, 1.0f, TextAlign::Center});
 }
 
 void StartMenuScreen::update(float deltaTime) {
@@ -44,7 +44,7 @@ void StartMenuScreen::render() {
 
 bool StartMenuScreen::handleInput(GLFWwindow* window) {
     // SPACE key starts the game (only if we haven't already started)
-    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS && m_gameScreen) {
+    if (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS && m_gameScreen) {
         // Queue the game screen to be pushed (safe - happens after this method returns)
         // The game screen will block the menu from updating/rendering
         m_screenManager.queuePushScreen(std::move(m_gameScreen));
