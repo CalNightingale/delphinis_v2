@@ -18,6 +18,7 @@
 #include "delphinis/components/Velocity.h"
 #include "delphinis/components/BoxCollider.h"
 #include "delphinis/components/Sprite.h"
+#include "delphinis/components/Text.h"
 #include "components/PaddleInput.h"
 #include "components/AIController.h"
 #include "components/Ball.h"
@@ -29,6 +30,8 @@
 #include "delphinis/systems/CollisionSystem.h"
 #include "systems/BallSystem.h"
 #include "delphinis/systems/RenderSystem.h"
+#include "delphinis/systems/TextRenderingSystem.h"
+#include "delphinis/renderer/Camera.h"
 
 using namespace delphinis;
 
@@ -106,13 +109,22 @@ int main() {
     float viewWidth = 20.0f;
     float viewHeight = 15.0f;
 
+    // Create Camera
+    Camera camera(viewWidth, viewHeight);
+
     // Create Systems
     RenderSystem renderSystem(viewWidth, viewHeight);
     MovementSystem movementSystem;
     InputSystem inputSystem(window);
     AISystem aiSystem;
     CollisionSystem collisionSystem;
-    BallSystem ballSystem;
+    BallSystem ballSystem(viewWidth);
+
+#ifdef __EMSCRIPTEN__
+    TextRenderingSystem textRenderSystem(camera, "/games/pong/assets/bit5x3.ttf");
+#else
+    TextRenderingSystem textRenderSystem(camera, "../games/pong/assets/bit5x3.ttf");
+#endif
 
     // Create Ball Entity
     Entity ball = world.createEntity();
@@ -150,6 +162,15 @@ int main() {
     world.addComponent(bottomWall, BoxCollider{viewWidth, 0.5f});
     world.addComponent(bottomWall, Sprite{Vec2{viewWidth, 0.5f}, Vec3{0.4f, 0.4f, 0.4f}});
 
+    // Create Score Display Entities
+    Entity leftScoreText = world.createEntity();
+    world.addComponent(leftScoreText, Transform{-viewWidth/4, viewHeight/2 - 2.0f});
+    world.addComponent(leftScoreText, Text{"0", Vec3{0.3f, 0.7f, 1.0f}, 2.0f, TextAlign::Center});
+
+    Entity rightScoreText = world.createEntity();
+    world.addComponent(rightScoreText, Transform{viewWidth/4, viewHeight/2 - 2.0f});
+    world.addComponent(rightScoreText, Text{"0", Vec3{1.0f, 0.3f, 0.3f}, 2.0f, TextAlign::Center});
+
     // Fixed timestep game loop
     const float FIXED_DT = 1.0f / 60.0f;
     static float accumulator = 0.0f;
@@ -168,6 +189,7 @@ int main() {
         if (!gameStarted) {
             // Still render the initial state and handle window events
             renderSystem.update(world, 0.0f);
+            textRenderSystem.update(world, 0.0f);
             glfwSwapBuffers(window);
             glfwPollEvents();
             return;
@@ -196,11 +218,18 @@ int main() {
             collisionSystem.update(world, FIXED_DT);
             ballSystem.update(world, FIXED_DT);
 
+            // Update score displays
+            auto& leftText = world.getComponent<Text>(leftScoreText);
+            auto& rightText = world.getComponent<Text>(rightScoreText);
+            leftText.content = std::to_string(ballSystem.getLeftScore());
+            rightText.content = std::to_string(ballSystem.getRightScore());
+
             accumulator -= FIXED_DT;
         }
 
         // Render
         renderSystem.update(world, 0.0f);
+        textRenderSystem.update(world, 0.0f);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
