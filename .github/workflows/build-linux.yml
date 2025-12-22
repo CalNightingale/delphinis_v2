@@ -24,6 +24,7 @@ jobs:
             libglew-dev \
             libglfw3-dev \
             libgl1-mesa-dev \
+            libxkbcommon-dev \
             xorg-dev
 
       - name: Create build directory
