@@ -1,12 +1,11 @@
 #include "delphinis/renderer/FontAtlas.h"
 #include <iostream>
 #include <cstring>
+#include <fstream>
+#include <vector>
 
 #define STB_TRUETYPE_IMPLEMENTATION
 #include "stb/stb_truetype.h"
-
-// Embedded font data
-#include "embedded_font.h"
 
 namespace delphinis {
 
@@ -24,10 +23,10 @@ FontAtlas::~FontAtlas() {
     }
 }
 
-void FontAtlas::init() {
+void FontAtlas::init(const char* fontPath) {
     if (m_initialized) return;
 
-    generateFontAtlas();
+    generateFontAtlas(fontPath);
     m_initialized = true;
 }
 
@@ -42,7 +41,26 @@ const GlyphInfo& FontAtlas::getGlyph(char c) const {
     return fallback;
 }
 
-void FontAtlas::generateFontAtlas() {
+void FontAtlas::generateFontAtlas(const char* fontPath) {
+    // Load font file from disk
+    std::ifstream file(fontPath, std::ios::binary | std::ios::ate);
+    if (!file.is_open()) {
+        std::cerr << "FontAtlas: Failed to open font file: " << fontPath << std::endl;
+        return;
+    }
+
+    std::streamsize fileSize = file.tellg();
+    file.seekg(0, std::ios::beg);
+
+    std::vector<unsigned char> fontBuffer(fileSize);
+    if (!file.read(reinterpret_cast<char*>(fontBuffer.data()), fileSize)) {
+        std::cerr << "FontAtlas: Failed to read font file: " << fontPath << std::endl;
+        return;
+    }
+    file.close();
+
+    std::cout << "FontAtlas: Loaded font file " << fontPath << " (" << fileSize << " bytes)" << std::endl;
+
     // Prepare bitmap buffer for atlas
     unsigned char* bitmap = new unsigned char[m_atlasWidth * m_atlasHeight];
     std::memset(bitmap, 0, m_atlasWidth * m_atlasHeight);
@@ -56,7 +74,7 @@ void FontAtlas::generateFontAtlas() {
     // Higher resolution = sharper text when scaled up
     float pixelHeight = 48.0f;  // Font size in pixels
     int result = stbtt_BakeFontBitmap(
-        _System_Library_Fonts_SFNSMono_ttf,  // Font data
+        fontBuffer.data(),                     // Font data
         0,                                      // Font offset (0 for first font in file)
         pixelHeight,                            // Pixel height
         bitmap,                                 // Output bitmap

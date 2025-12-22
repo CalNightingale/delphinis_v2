@@ -62,4 +62,19 @@ endfunction()
 
 # Add games here - one line per game
 add_game(hello)
+
+# Add preload-file for hello game assets (for web build)
+if(EMSCRIPTEN AND TARGET hello)
+    target_link_options(hello PRIVATE
+        --preload-file ${CMAKE_SOURCE_DIR}/games/hello/assets@/games/hello/assets
+    )
+endif()
+
 add_game(pong)
+
+# Add preload-file for pong game assets (for web build)
+if(EMSCRIPTEN AND TARGET pong)
+    target_link_options(pong PRIVATE
+        --preload-file ${CMAKE_SOURCE_DIR}/games/pong/assets@/games/pong/assets
+    )
+endif()

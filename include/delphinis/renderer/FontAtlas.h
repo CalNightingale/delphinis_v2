@@ -24,7 +24,7 @@ public:
     FontAtlas();
     ~FontAtlas();
 
-    void init();
+    void init(const char* fontPath);
 
     GLuint getTextureId() const { return m_textureId; }
     const GlyphInfo& getGlyph(char c) const;
@@ -38,7 +38,7 @@ private:
     std::unordered_map<char, GlyphInfo> m_glyphs;
     bool m_initialized;
 
-    void generateFontAtlas();
+    void generateFontAtlas(const char* fontPath);
 };
 
 } // namespace delphinis

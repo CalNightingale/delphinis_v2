@@ -11,10 +11,10 @@
 
 namespace delphinis {
 
-TextRenderingSystem::TextRenderingSystem(Camera& camera)
+TextRenderingSystem::TextRenderingSystem(Camera& camera, const char* fontPath)
     : m_camera(camera) {
     m_texturedQuadRenderer.init();
-    m_fontAtlas.init();
+    m_fontAtlas.init(fontPath);
 }
 
 void TextRenderingSystem::update(World& world, float deltaTime) {
