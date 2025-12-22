@@ -96,6 +96,20 @@ void FontAtlas::generateFontAtlas(const char* fontPath) {
     glBindTexture(GL_TEXTURE_2D, m_textureId);
 
     // Upload bitmap to texture (single channel)
+    // WebGL 2.0 requires sized internal formats (GL_R8), desktop OpenGL can use GL_RED
+#ifdef __EMSCRIPTEN__
+    glTexImage2D(
+        GL_TEXTURE_2D,
+        0,
+        GL_R8,
+        m_atlasWidth,
+        m_atlasHeight,
+        0,
+        GL_RED,
+        GL_UNSIGNED_BYTE,
+        bitmap
+    );
+#else
     glTexImage2D(
         GL_TEXTURE_2D,
         0,
@@ -107,6 +121,7 @@ void FontAtlas::generateFontAtlas(const char* fontPath) {
         GL_UNSIGNED_BYTE,
         bitmap
     );
+#endif
 
     // Set texture parameters
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
