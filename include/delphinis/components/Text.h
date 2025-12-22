@@ -14,14 +14,14 @@ enum class TextAlign {
 struct Text {
     std::string content;
     Vec3 color{1.0f, 1.0f, 1.0f};  // RGB tint
-    float scale{1.0f};              // Size multiplier
+    float height{0.5f};             // Text height in world units
     TextAlign align{TextAlign::Left};  // Horizontal alignment
 
     Text() = default;
     Text(const std::string& str) : content(str) {}
     Text(const std::string& str, Vec3 col) : content(str), color(col) {}
-    Text(const std::string& str, Vec3 col, float s) : content(str), color(col), scale(s) {}
-    Text(const std::string& str, Vec3 col, float s, TextAlign a) : content(str), color(col), scale(s), align(a) {}
+    Text(const std::string& str, Vec3 col, float h) : content(str), color(col), height(h) {}
+    Text(const std::string& str, Vec3 col, float h, TextAlign a) : content(str), color(col), height(h), align(a) {}
 };
 
 } // namespace delphinis

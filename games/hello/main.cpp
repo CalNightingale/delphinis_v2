@@ -73,9 +73,10 @@ int main() {
     TextRenderingSystem textRenderSystem(camera);
 
     // Create centered text entity
+    // Camera viewport is 20x15 world units, so 0.5 units = ~3% of viewport height
     Entity helloText = world.createEntity();
     world.addComponent(helloText, Transform{{0.0f, 0.0f}});  // Center of screen
-    world.addComponent(helloText, Text{"hello world!", Vec3{1.0f, 1.0f, 0.3f}, 1.0f, TextAlign::Center});
+    world.addComponent(helloText, Text{"hello world!", Vec3{1.0f, 1.0f, 0.3f}, 2.5f, TextAlign::Center});
 
     // Main render loop
     while (!glfwWindowShouldClose(window)) {

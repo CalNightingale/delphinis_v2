@@ -24,17 +24,16 @@ void TextRenderingSystem::update(World& world, float deltaTime) {
 
     GLuint fontTexture = m_fontAtlas.getTextureId();
 
-    // Conversion factor: pixels to world units
-    // Font is baked at ~20 pixels tall, scale down to reasonable world size
-    const float pixelToWorld = 0.02f;
-
     for (Entity entity : world.getEntities()) {
         if (world.hasComponents<Transform, Text>(entity)) {
             const auto& transform = world.getComponent<Transform>(entity);
             const auto& text = world.getComponent<Text>(entity);
 
-            // Convert from pixel space to world space
-            float worldScale = pixelToWorld * text.scale;
+            // Calculate scale to achieve desired world height
+            // Font line height in pixels (e.g., 20px)
+            // User specifies desired height in world units (e.g., 0.5)
+            // worldScale = world units per pixel
+            float worldScale = text.height / m_fontAtlas.getLineHeight();
 
             // Calculate total text width for alignment
             float totalWidth = 0.0f;
