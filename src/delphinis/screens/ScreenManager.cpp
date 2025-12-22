@@ -64,6 +64,9 @@ void ScreenManager::update(float deltaTime) {
     for (auto it = screensToUpdate.rbegin(); it != screensToUpdate.rend(); ++it) {
         (*it)->update(deltaTime);
     }
+
+    // Process any screen transitions that were queued during update
+    processPendingActions();
 }
 
 void ScreenManager::render() {
@@ -90,8 +93,45 @@ void ScreenManager::handleInput() {
     // Input goes from top to bottom - first screen to consume input stops propagation
     for (auto it = m_screenStack.rbegin(); it != m_screenStack.rend(); ++it) {
         if ((*it)->handleInput(m_window)) {
-            return; // Input consumed
+            break; // Input consumed
         }
+    }
+
+    // Process any screen transitions that were queued during input handling
+    processPendingActions();
+}
+
+void ScreenManager::queuePushScreen(std::unique_ptr<Screen> screen) {
+    m_pendingActions.push({ActionType::Push, std::move(screen)});
+}
+
+void ScreenManager::queuePopScreen() {
+    m_pendingActions.push({ActionType::Pop, nullptr});
+}
+
+void ScreenManager::queueChangeScreen(std::unique_ptr<Screen> screen) {
+    m_pendingActions.push({ActionType::Change, std::move(screen)});
+}
+
+void ScreenManager::processPendingActions() {
+    while (!m_pendingActions.empty()) {
+        auto& action = m_pendingActions.front();
+
+        switch (action.type) {
+            case ActionType::Push:
+                pushScreen(std::move(action.screen));
+                break;
+
+            case ActionType::Pop:
+                popScreen();
+                break;
+
+            case ActionType::Change:
+                changeScreen(std::move(action.screen));
+                break;
+        }
+
+        m_pendingActions.pop();
     }
 }
 

@@ -1,27 +1,17 @@
 #ifdef __EMSCRIPTEN__
     #include <GLES3/gl3.h>
     #include <emscripten.h>
-    #include <emscripten/html5.h>
 #else
     #include <GL/glew.h>
 #endif
 
 #include <GLFW/glfw3.h>
 #include <iostream>
-#include <string>
 
-// ECS
-#include "delphinis/ecs/World.h"
-
-// Components
-#include "delphinis/components/Transform.h"
-#include "delphinis/components/Velocity.h"
-#include "delphinis/components/BoxCollider.h"
-#include "delphinis/components/Sprite.h"
-#include "delphinis/components/Text.h"
-#include "components/PaddleInput.h"
-#include "components/AIController.h"
-#include "components/Ball.h"
+// Screen Stack
+#include "delphinis/screens/ScreenManager.h"
+#include "PongGameScreen.h"
+#include "StartMenuScreen.h"
 
 // Systems
 #include "systems/InputSystem.h"
@@ -34,20 +24,6 @@
 #include "delphinis/renderer/Camera.h"
 
 using namespace delphinis;
-
-#ifdef __EMSCRIPTEN__
-// Global flag to control game loop execution in web builds
-// Prevents game from starting until user clicks on canvas
-static bool gameStarted = false;
-
-// JavaScript-callable function to start the game
-extern "C" {
-    EMSCRIPTEN_KEEPALIVE
-    void startGame() {
-        gameStarted = true;
-    }
-}
-#endif
 
 void framebufferSizeCallback(GLFWwindow*, int width, int height) {
     glViewport(0, 0, width, height);
@@ -97,13 +73,8 @@ int main() {
     glViewport(0, 0, windowWidth, windowHeight);
 
     std::cout << "Pong - Delphinis Engine v0.1.0" << std::endl;
-    std::cout << "Controls: W/S for left paddle" << std::endl;
+    std::cout << "Controls: W/S for left paddle, SPACE to start" << std::endl;
     std::cout << "Press ESC to exit" << std::endl;
-
-    glClearColor(0.1f, 0.1f, 0.15f, 1.0f);
-
-    // Create ECS World
-    World world;
 
     // Game view dimensions
     float viewWidth = 20.0f;
@@ -112,7 +83,7 @@ int main() {
     // Create Camera
     Camera camera(viewWidth, viewHeight);
 
-    // Create Systems
+    // Create Systems (owned by main, shared by screens)
     RenderSystem renderSystem(viewWidth, viewHeight);
     MovementSystem movementSystem;
     InputSystem inputSystem(window);
@@ -126,125 +97,43 @@ int main() {
     TextRenderingSystem textRenderSystem(camera, "../games/pong/assets/bit5x3.ttf");
 #endif
 
-    // Create Ball Entity
-    Entity ball = world.createEntity();
-    world.addComponent(ball, Transform{0.0f, 0.0f});
-    world.addComponent(ball, Velocity{5.0f, 3.0f});
-    world.addComponent(ball, BoxCollider{0.4f, 0.4f});
-    world.addComponent(ball, Sprite{Vec2{0.4f, 0.4f}, Vec3{1.0f, 1.0f, 0.3f}});
-    world.addComponent(ball, Ball{8.0f});
+    // Create screen manager
+    ScreenManager screenManager(window);
 
-    // Create Left Paddle (Player)
-    Entity leftPaddle = world.createEntity();
-    world.addComponent(leftPaddle, Transform{-viewWidth/2 + 1.0f, 0.0f});
-    world.addComponent(leftPaddle, Velocity{0.0f, 0.0f});
-    world.addComponent(leftPaddle, BoxCollider{0.4f, 2.0f});
-    world.addComponent(leftPaddle, Sprite{Vec2{0.4f, 2.0f}, Vec3{0.3f, 0.7f, 1.0f}});
-    world.addComponent(leftPaddle, PaddleInput{GLFW_KEY_W, GLFW_KEY_S, 10.0f});
+    // Create game screen (pass system references)
+    auto gameScreen = std::make_unique<PongGameScreen>(
+        renderSystem, textRenderSystem, movementSystem,
+        collisionSystem, inputSystem, aiSystem, ballSystem,
+        viewWidth, viewHeight
+    );
 
-    // Create Right Paddle (AI)
-    Entity rightPaddle = world.createEntity();
-    world.addComponent(rightPaddle, Transform{viewWidth/2 - 1.0f, 0.0f});
-    world.addComponent(rightPaddle, Velocity{0.0f, 0.0f});
-    world.addComponent(rightPaddle, BoxCollider{0.4f, 2.0f});
-    world.addComponent(rightPaddle, Sprite{Vec2{0.4f, 2.0f}, Vec3{1.0f, 0.3f, 0.3f}});
-    world.addComponent(rightPaddle, AIController{8.0f, ball});
+    // Create and push start menu (pass game screen ownership)
+    screenManager.pushScreen(
+        std::make_unique<StartMenuScreen>(
+            textRenderSystem, screenManager, std::move(gameScreen)
+        )
+    );
 
-    // Create Top Wall
-    Entity topWall = world.createEntity();
-    world.addComponent(topWall, Transform{0.0f, viewHeight/2});
-    world.addComponent(topWall, BoxCollider{viewWidth, 0.5f});
-    world.addComponent(topWall, Sprite{Vec2{viewWidth, 0.5f}, Vec3{0.4f, 0.4f, 0.4f}});
-
-    // Create Bottom Wall
-    Entity bottomWall = world.createEntity();
-    world.addComponent(bottomWall, Transform{0.0f, -viewHeight/2});
-    world.addComponent(bottomWall, BoxCollider{viewWidth, 0.5f});
-    world.addComponent(bottomWall, Sprite{Vec2{viewWidth, 0.5f}, Vec3{0.4f, 0.4f, 0.4f}});
-
-    // Create Score Display Entities
-    Entity leftScoreText = world.createEntity();
-    world.addComponent(leftScoreText, Transform{-viewWidth/4, viewHeight/2 - 2.0f});
-    world.addComponent(leftScoreText, Text{"0", Vec3{0.3f, 0.7f, 1.0f}, 2.0f, TextAlign::Center});
-
-    Entity rightScoreText = world.createEntity();
-    world.addComponent(rightScoreText, Transform{viewWidth/4, viewHeight/2 - 2.0f});
-    world.addComponent(rightScoreText, Text{"0", Vec3{1.0f, 0.3f, 0.3f}, 2.0f, TextAlign::Center});
-
-    // Fixed timestep game loop
-    const float FIXED_DT = 1.0f / 60.0f;
-    static float accumulator = 0.0f;
+    // Frame time tracking
     static double lastTime = glfwGetTime();
 
-    // FPS counter
-    static int frameCount = 0;
-    static double fpsLastTime = glfwGetTime();
-    static int currentFPS = 0;
-
-    // Game loop function
+    // Simplified main loop
     auto mainLoop = [&]() {
-#ifdef __EMSCRIPTEN__
-        // In web builds, pause game logic until user clicks to start
-        // This prevents the ball from moving before the player is ready
-        if (!gameStarted) {
-            // Still render the initial state and handle window events
-            renderSystem.update(world, 0.0f);
-            textRenderSystem.update(world, 0.0f);
-            glfwSwapBuffers(window);
-            glfwPollEvents();
-            return;
-        }
-#endif
-
+        // Calculate delta time
         double currentTime = glfwGetTime();
         float frameTime = static_cast<float>(currentTime - lastTime);
         lastTime = currentTime;
 
-        // Cap frame time to prevent spiral of death
-        if (frameTime > 0.25f) {
-            frameTime = 0.25f;
-        }
+        // Fallback input handling
+        processInput(window);
 
-        accumulator += frameTime;
-
-        // Fixed update loop
-        while (accumulator >= FIXED_DT) {
-            processInput(window);
-
-            // Update systems in order
-            inputSystem.update(world, FIXED_DT);
-            aiSystem.update(world, FIXED_DT);
-            movementSystem.update(world, FIXED_DT);
-            collisionSystem.update(world, FIXED_DT);
-            ballSystem.update(world, FIXED_DT);
-
-            // Update score displays
-            auto& leftText = world.getComponent<Text>(leftScoreText);
-            auto& rightText = world.getComponent<Text>(rightScoreText);
-            leftText.content = std::to_string(ballSystem.getLeftScore());
-            rightText.content = std::to_string(ballSystem.getRightScore());
-
-            accumulator -= FIXED_DT;
-        }
-
-        // Render
-        renderSystem.update(world, 0.0f);
-        textRenderSystem.update(world, 0.0f);
+        // Update and render through screen manager
+        screenManager.handleInput();
+        screenManager.update(frameTime);
+        screenManager.render();
 
         glfwSwapBuffers(window);
         glfwPollEvents();
-
-        // Update FPS counter
-        frameCount++;
-        double fpsCurrentTime = glfwGetTime();
-        if (fpsCurrentTime - fpsLastTime >= 0.5) {
-            currentFPS = static_cast<int>(frameCount / (fpsCurrentTime - fpsLastTime));
-            frameCount = 0;
-            fpsLastTime = fpsCurrentTime;
-
-            std::string title = "Pong - Delphinis Engine (FPS: " + std::to_string(currentFPS) + ")";
-            glfwSetWindowTitle(window, title.c_str());
-        }
     };
 
 #ifdef __EMSCRIPTEN__
