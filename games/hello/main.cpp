@@ -72,10 +72,10 @@ int main() {
     // Create TextRenderingSystem
     TextRenderingSystem textRenderSystem(camera);
 
-    // Create text entity
+    // Create centered text entity
     Entity helloText = world.createEntity();
-    world.addComponent(helloText, Transform{{0.0f, 0.0f}});
-    world.addComponent(helloText, Text{"hello world!", Vec3{1.0f, 1.0f, 0.3f}});
+    world.addComponent(helloText, Transform{{0.0f, 0.0f}});  // Center of screen
+    world.addComponent(helloText, Text{"hello world!", Vec3{1.0f, 1.0f, 0.3f}, 1.0f, TextAlign::Center});
 
     // Main render loop
     while (!glfwWindowShouldClose(window)) {

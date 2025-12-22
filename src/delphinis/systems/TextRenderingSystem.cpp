@@ -33,17 +33,36 @@ void TextRenderingSystem::update(World& world, float deltaTime) {
             const auto& transform = world.getComponent<Transform>(entity);
             const auto& text = world.getComponent<Text>(entity);
 
-            // Calculate starting position (left-aligned)
+            // Convert from pixel space to world space
+            float worldScale = pixelToWorld * text.scale;
+
+            // Calculate total text width for alignment
+            float totalWidth = 0.0f;
+            for (char c : text.content) {
+                if (c < 32 || c > 126) continue;
+                const GlyphInfo& glyph = m_fontAtlas.getGlyph(c);
+                totalWidth += glyph.advance * worldScale;
+            }
+
+            // Calculate starting position based on alignment
             Vec2 cursorPos = transform.position;
+            switch (text.align) {
+                case TextAlign::Left:
+                    // No adjustment needed
+                    break;
+                case TextAlign::Center:
+                    cursorPos.x -= totalWidth * 0.5f;
+                    break;
+                case TextAlign::Right:
+                    cursorPos.x -= totalWidth;
+                    break;
+            }
 
             // Iterate through each character
             for (char c : text.content) {
                 if (c < 32 || c > 126) continue;  // Skip non-printable
 
                 const GlyphInfo& glyph = m_fontAtlas.getGlyph(c);
-
-                // Convert from pixel space to world space
-                float worldScale = pixelToWorld * text.scale;
 
                 // Calculate quad position and size in world coordinates
                 Vec2 glyphSize = Vec2{
