@@ -2,6 +2,14 @@
 #include <GLFW/glfw3.h>
 #include <iostream>
 
+#include "delphinis/ecs/World.h"
+#include "delphinis/components/Transform.h"
+#include "delphinis/components/Text.h"
+#include "delphinis/systems/TextRenderingSystem.h"
+#include "delphinis/renderer/Camera.h"
+
+using namespace delphinis;
+
 void framebufferSizeCallback(GLFWwindow* window, int width, int height) {
     glViewport(0, 0, width, height);
 }
@@ -55,6 +63,21 @@ int main() {
     std::cout << "OpenGL Version: " << glGetString(GL_VERSION) << std::endl;
     std::cout << "Press ESC to exit" << std::endl;
 
+    // Create ECS World
+    World world;
+
+    // Create Camera
+    Camera camera(20.0f, 15.0f);
+
+    // Create TextRenderingSystem
+    TextRenderingSystem textRenderSystem(camera);
+
+    // Create centered text entity
+    // Camera viewport is 20x15 world units, so 0.5 units = ~3% of viewport height
+    Entity helloText = world.createEntity();
+    world.addComponent(helloText, Transform{{0.0f, 0.0f}});  // Center of screen
+    world.addComponent(helloText, Text{"hello world!", Vec3{1.0f, 1.0f, 0.3f}, 2.5f, TextAlign::Center});
+
     // Main render loop
     while (!glfwWindowShouldClose(window)) {
         // Process input
@@ -63,6 +86,9 @@ int main() {
         // Render
         glClearColor(0.2f, 0.3f, 0.4f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
+
+        // Update text rendering system
+        textRenderSystem.update(world, 0.0f);
 
         // Swap buffers and poll events
         glfwSwapBuffers(window);

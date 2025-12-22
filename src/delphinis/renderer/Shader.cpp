@@ -46,6 +46,11 @@ void Shader::setFloat(const char* name, float value) const {
     glUniform1f(location, value);
 }
 
+void Shader::setInt(const char* name, int value) const {
+    GLint location = glGetUniformLocation(m_program, name);
+    glUniform1i(location, value);
+}
+
 GLuint Shader::compileShader(GLenum type, const char* source) {
     GLuint shader = glCreateShader(type);
     glShaderSource(shader, 1, &source, nullptr);
