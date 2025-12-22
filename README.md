@@ -108,3 +108,6 @@ Your game will automatically link against the engine library and dependencies.
 - **Simple API**: Create games in ~200 lines of code
 - **Fixed timestep**: Consistent physics simulation
 - **Modular**: Easy to add new components and systems
+
+## Acknowledgements
+I'd like to thank [Matt LaGrandeur](https://www.mattlag.com/bitfonts/) for the cool pong-style font!
