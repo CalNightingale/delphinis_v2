@@ -1,5 +1,10 @@
 # Delphinis - 2D Game Engine
 
+[![Linux Build](https://github.com/CalNightingale/delphinis_v2/actions/workflows/build-linux.yml/badge.svg)](https://github.com/CalNightingale/delphinis_v2/actions/workflows/build-linux.yml)
+[![macOS Build](https://github.com/CalNightingale/delphinis_v2/actions/workflows/build-macos.yml/badge.svg)](https://github.com/CalNightingale/delphinis_v2/actions/workflows/build-macos.yml)
+[![Windows Build](https://github.com/CalNightingale/delphinis_v2/actions/workflows/build-windows.yml/badge.svg)](https://github.com/CalNightingale/delphinis_v2/actions/workflows/build-windows.yml)
+[![Web Build & Deploy](https://github.com/CalNightingale/delphinis_v2/actions/workflows/deploy-pages.yml/badge.svg)](https://github.com/CalNightingale/delphinis_v2/actions/workflows/deploy-pages.yml)
+
 A simple, elegant 2D game engine built in C++ using pure ECS architecture.
 
 ## Play Online
