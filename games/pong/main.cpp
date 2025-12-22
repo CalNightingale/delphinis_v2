@@ -107,6 +107,9 @@ int main() {
         viewWidth, viewHeight
     );
 
+    // Set screen manager on game screen (so it can push EndScreen)
+    gameScreen->setScreenManager(&screenManager);
+
     // Create and push start menu (pass game screen ownership)
     screenManager.pushScreen(
         std::make_unique<StartMenuScreen>(

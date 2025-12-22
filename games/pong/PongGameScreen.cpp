@@ -1,4 +1,5 @@
 #include "PongGameScreen.h"
+#include "EndScreen.h"
 #include "delphinis/components/Transform.h"
 #include "delphinis/components/Velocity.h"
 #include "delphinis/components/BoxCollider.h"
@@ -108,6 +109,24 @@ void PongGameScreen::update(float deltaTime) {
         rightText.content = std::to_string(m_ballSystem.getRightScore());
 
         m_accumulator -= FIXED_DT;
+    }
+
+    // Check for game over
+    if (m_ballSystem.isGameOver() && m_screenManager) {
+        bool playerWon = m_ballSystem.didPlayerWin();
+
+        // Reset scores for next game
+        m_ballSystem.resetScores();
+
+        // Create and push the end screen
+        auto endScreen = std::make_unique<EndScreen>(
+            m_textRenderSystem, *m_screenManager,
+            m_renderSystem, m_movementSystem,
+            m_collisionSystem, m_inputSystem, m_aiSystem, m_ballSystem,
+            m_viewWidth, m_viewHeight, playerWon
+        );
+
+        m_screenManager->queuePushScreen(std::move(endScreen));
     }
 }
 

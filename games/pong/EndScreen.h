@@ -2,64 +2,54 @@
 
 #include "delphinis/screens/Screen.h"
 #include "delphinis/screens/ScreenManager.h"
-#include "delphinis/systems/RenderSystem.h"
 #include "delphinis/systems/TextRenderingSystem.h"
+#include "delphinis/systems/RenderSystem.h"
 #include "delphinis/systems/MovementSystem.h"
 #include "delphinis/systems/CollisionSystem.h"
 #include "systems/InputSystem.h"
 #include "systems/AISystem.h"
 #include "systems/BallSystem.h"
-#include "delphinis/ecs/Entity.h"
+#include <memory>
 
 namespace delphinis {
 
-class PongGameScreen : public Screen {
+class EndScreen : public Screen {
 public:
-    PongGameScreen(
+    EndScreen(
+        TextRenderingSystem& textRenderSystem,
+        ScreenManager& screenManager,
         RenderSystem& renderSystem,
-        TextRenderingSystem& textRenderingSystem,
         MovementSystem& movementSystem,
         CollisionSystem& collisionSystem,
         InputSystem& inputSystem,
         AISystem& aiSystem,
         BallSystem& ballSystem,
         float viewWidth,
-        float viewHeight
+        float viewHeight,
+        bool playerWon
     );
-
-    void setScreenManager(ScreenManager* screenManager) { m_screenManager = screenManager; }
 
     void onEnter() override;
     void update(float deltaTime) override;
     void render() override;
+    bool handleInput(GLFWwindow* window) override;
 
-    // Game fills screen completely
+    // End screen fills screen completely
     bool blocksUpdate() const override { return true; }
     bool blocksRender() const override { return true; }
 
 private:
-    // System references
-    RenderSystem& m_renderSystem;
     TextRenderingSystem& m_textRenderSystem;
+    ScreenManager& m_screenManager;
+    RenderSystem& m_renderSystem;
     MovementSystem& m_movementSystem;
     CollisionSystem& m_collisionSystem;
     InputSystem& m_inputSystem;
     AISystem& m_aiSystem;
     BallSystem& m_ballSystem;
-
-    // Screen manager (optional - set after construction)
-    ScreenManager* m_screenManager = nullptr;
-
-    // Game dimensions
     float m_viewWidth;
     float m_viewHeight;
-
-    // Fixed timestep accumulator
-    float m_accumulator;
-
-    // Track entities for score updates
-    Entity m_leftScoreText;
-    Entity m_rightScoreText;
+    bool m_playerWon;
 };
 
 } // namespace delphinis

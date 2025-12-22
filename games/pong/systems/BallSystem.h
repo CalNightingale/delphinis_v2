@@ -12,6 +12,10 @@ public:
 
     int getLeftScore() const { return m_leftScore; }
     int getRightScore() const { return m_rightScore; }
+    bool isGameOver() const { return m_leftScore >= 5 || m_rightScore >= 5; }
+    bool didPlayerWin() const { return m_leftScore >= 5; }
+
+    void resetScores() { m_leftScore = 0; m_rightScore = 0; }
 
 private:
     float m_viewWidth;
