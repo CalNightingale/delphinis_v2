@@ -2,7 +2,6 @@
 build/
 build-web/
 bin/
-lib/
 .cache/
 
 # CMake
