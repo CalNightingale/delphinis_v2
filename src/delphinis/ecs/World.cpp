@@ -1,4 +1,5 @@
 #include "delphinis/ecs/World.h"
+#include <algorithm>
 
 namespace delphinis {
 
