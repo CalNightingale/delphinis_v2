@@ -18,6 +18,7 @@
 #include "systems/AISystem.h"
 #include "delphinis/systems/MovementSystem.h"
 #include "delphinis/systems/CollisionSystem.h"
+#include "systems/PaddleCollisionSystem.h"
 #include "systems/BallSystem.h"
 #include "delphinis/systems/RenderSystem.h"
 #include "delphinis/systems/TextRenderingSystem.h"
@@ -89,6 +90,7 @@ int main() {
     InputSystem inputSystem(window);
     AISystem aiSystem;
     CollisionSystem collisionSystem;
+    PaddleCollisionSystem paddleCollisionSystem;
     BallSystem ballSystem(viewWidth);
 
 #ifdef __EMSCRIPTEN__
@@ -103,7 +105,7 @@ int main() {
     // Create game screen (pass system references)
     auto gameScreen = std::make_unique<PongGameScreen>(
         renderSystem, textRenderSystem, movementSystem,
-        collisionSystem, inputSystem, aiSystem, ballSystem,
+        collisionSystem, paddleCollisionSystem, inputSystem, aiSystem, ballSystem,
         viewWidth, viewHeight
     );
 

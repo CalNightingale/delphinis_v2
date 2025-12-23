@@ -9,6 +9,7 @@
 #include "systems/InputSystem.h"
 #include "systems/AISystem.h"
 #include "systems/BallSystem.h"
+#include "systems/PaddleCollisionSystem.h"
 #include "delphinis/ecs/Entity.h"
 
 namespace delphinis {
@@ -20,6 +21,7 @@ public:
         TextRenderingSystem& textRenderingSystem,
         MovementSystem& movementSystem,
         CollisionSystem& collisionSystem,
+        PaddleCollisionSystem& paddleCollisionSystem,
         InputSystem& inputSystem,
         AISystem& aiSystem,
         BallSystem& ballSystem,
@@ -43,6 +45,7 @@ private:
     TextRenderingSystem& m_textRenderSystem;
     MovementSystem& m_movementSystem;
     CollisionSystem& m_collisionSystem;
+    PaddleCollisionSystem& m_paddleCollisionSystem;
     InputSystem& m_inputSystem;
     AISystem& m_aiSystem;
     BallSystem& m_ballSystem;

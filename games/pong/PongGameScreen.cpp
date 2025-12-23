@@ -8,6 +8,7 @@
 #include "components/PaddleInput.h"
 #include "components/AIController.h"
 #include "components/Ball.h"
+#include "components/PaddleCollider.h"
 #include <GLFW/glfw3.h>
 
 namespace delphinis {
@@ -17,6 +18,7 @@ PongGameScreen::PongGameScreen(
     TextRenderingSystem& textRenderSystem,
     MovementSystem& movementSystem,
     CollisionSystem& collisionSystem,
+    PaddleCollisionSystem& paddleCollisionSystem,
     InputSystem& inputSystem,
     AISystem& aiSystem,
     BallSystem& ballSystem,
@@ -27,6 +29,7 @@ PongGameScreen::PongGameScreen(
     , m_textRenderSystem(textRenderSystem)
     , m_movementSystem(movementSystem)
     , m_collisionSystem(collisionSystem)
+    , m_paddleCollisionSystem(paddleCollisionSystem)
     , m_inputSystem(inputSystem)
     , m_aiSystem(aiSystem)
     , m_ballSystem(ballSystem)
@@ -49,17 +52,17 @@ void PongGameScreen::onEnter() {
     Entity leftPaddle = getWorld().createEntity();
     getWorld().addComponent(leftPaddle, Transform{-m_viewWidth/2 + 1.0f, 0.0f});
     getWorld().addComponent(leftPaddle, Velocity{0.0f, 0.0f});
-    getWorld().addComponent(leftPaddle, BoxCollider{0.4f, 2.0f});
     getWorld().addComponent(leftPaddle, Sprite{Vec2{0.4f, 2.0f}, Vec3{0.3f, 0.7f, 1.0f}});
     getWorld().addComponent(leftPaddle, PaddleInput{GLFW_KEY_W, GLFW_KEY_S, 10.0f});
+    getWorld().addComponent(leftPaddle, PaddleCollider{60.0f});
 
     // Create Right Paddle (AI)
     Entity rightPaddle = getWorld().createEntity();
     getWorld().addComponent(rightPaddle, Transform{m_viewWidth/2 - 1.0f, 0.0f});
     getWorld().addComponent(rightPaddle, Velocity{0.0f, 0.0f});
-    getWorld().addComponent(rightPaddle, BoxCollider{0.4f, 2.0f});
     getWorld().addComponent(rightPaddle, Sprite{Vec2{0.4f, 2.0f}, Vec3{1.0f, 0.3f, 0.3f}});
     getWorld().addComponent(rightPaddle, AIController{8.0f, ball});
+    getWorld().addComponent(rightPaddle, PaddleCollider{60.0f});
 
     // Create Top Wall
     Entity topWall = getWorld().createEntity();
@@ -99,6 +102,7 @@ void PongGameScreen::update(float deltaTime) {
         m_inputSystem.update(getWorld(), FIXED_DT);
         m_aiSystem.update(getWorld(), FIXED_DT);
         m_movementSystem.update(getWorld(), FIXED_DT);
+        m_paddleCollisionSystem.update(getWorld(), FIXED_DT);
         m_collisionSystem.update(getWorld(), FIXED_DT);
         m_ballSystem.update(getWorld(), FIXED_DT);
 
@@ -122,7 +126,7 @@ void PongGameScreen::update(float deltaTime) {
         auto endScreen = std::make_unique<EndScreen>(
             m_textRenderSystem, *m_screenManager,
             m_renderSystem, m_movementSystem,
-            m_collisionSystem, m_inputSystem, m_aiSystem, m_ballSystem,
+            m_collisionSystem, m_paddleCollisionSystem, m_inputSystem, m_aiSystem, m_ballSystem,
             m_viewWidth, m_viewHeight, playerWon
         );
 
