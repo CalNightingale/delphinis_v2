@@ -61,7 +61,7 @@ void PongGameScreen::onEnter() {
     getWorld().addComponent(rightPaddle, Transform{m_viewWidth/2 - 1.0f, 0.0f});
     getWorld().addComponent(rightPaddle, Velocity{0.0f, 0.0f});
     getWorld().addComponent(rightPaddle, Sprite{Vec2{0.4f, 2.0f}, Vec3{1.0f, 0.3f, 0.3f}});
-    getWorld().addComponent(rightPaddle, AIController{8.0f, ball});
+    getWorld().addComponent(rightPaddle, AIController{6.0f, ball});
     getWorld().addComponent(rightPaddle, PaddleCollider{60.0f});
 
     // Create Top Wall
