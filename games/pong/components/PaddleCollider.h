@@ -5,7 +5,7 @@
 namespace delphinis {
 
 struct PaddleCollider {
-    Vec2 halfSize{0.4f, 2.0f};                    // Collision box half-extents
+    Vec2 halfSize{0.2f, 1.0f};                    // Collision box half-extents
     float maxReflectionAngle{60.0f};              // Max angle in degrees from horizontal
 
     PaddleCollider() = default;
