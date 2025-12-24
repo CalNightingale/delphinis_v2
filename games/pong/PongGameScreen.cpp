@@ -9,6 +9,7 @@
 #include "components/AIController.h"
 #include "components/Ball.h"
 #include "components/PaddleCollider.h"
+#include "constants/PongConstants.h"
 #include <GLFW/glfw3.h>
 
 namespace delphinis {
@@ -43,68 +44,66 @@ void PongGameScreen::onEnter() {
     // Create Ball Entity
     Entity ball = getWorld().createEntity();
     getWorld().addComponent(ball, Transform{0.0f, 0.0f});
-    getWorld().addComponent(ball, Velocity{5.0f, 3.0f});
-    getWorld().addComponent(ball, BoxCollider{0.4f, 0.4f});
-    getWorld().addComponent(ball, Sprite{Vec2{0.4f, 0.4f}, Vec3{1.0f, 1.0f, 0.3f}});
-    getWorld().addComponent(ball, Ball{8.0f});
+    getWorld().addComponent(ball, Velocity{BALL_INITIAL_VELOCITY_X, BALL_INITIAL_VELOCITY_Y});
+    getWorld().addComponent(ball, BoxCollider{BALL_SIZE, BALL_SIZE});
+    getWorld().addComponent(ball, Sprite{Vec2{BALL_SIZE, BALL_SIZE}, BALL_COLOR});
+    getWorld().addComponent(ball, Ball{BALL_SPEED});
 
     // Create Left Paddle (Player)
     Entity leftPaddle = getWorld().createEntity();
-    getWorld().addComponent(leftPaddle, Transform{-m_viewWidth/2 + 1.0f, 0.0f});
+    getWorld().addComponent(leftPaddle, Transform{-m_viewWidth/2 + PADDLE_OFFSET_FROM_EDGE, 0.0f});
     getWorld().addComponent(leftPaddle, Velocity{0.0f, 0.0f});
-    getWorld().addComponent(leftPaddle, Sprite{Vec2{0.4f, 2.0f}, Vec3{0.3f, 0.7f, 1.0f}});
-    getWorld().addComponent(leftPaddle, PaddleInput{GLFW_KEY_W, GLFW_KEY_S, 10.0f});
-    getWorld().addComponent(leftPaddle, PaddleCollider{60.0f});
+    getWorld().addComponent(leftPaddle, Sprite{Vec2{PADDLE_WIDTH, PADDLE_HEIGHT}, PLAYER_PADDLE_COLOR});
+    getWorld().addComponent(leftPaddle, PaddleInput{PLAYER_KEY_UP, PLAYER_KEY_DOWN, PLAYER_PADDLE_SPEED});
+    getWorld().addComponent(leftPaddle, PaddleCollider{PADDLE_MAX_REFLECTION_ANGLE});
 
     // Create Right Paddle (AI)
     Entity rightPaddle = getWorld().createEntity();
-    getWorld().addComponent(rightPaddle, Transform{m_viewWidth/2 - 1.0f, 0.0f});
+    getWorld().addComponent(rightPaddle, Transform{m_viewWidth/2 - PADDLE_OFFSET_FROM_EDGE, 0.0f});
     getWorld().addComponent(rightPaddle, Velocity{0.0f, 0.0f});
-    getWorld().addComponent(rightPaddle, Sprite{Vec2{0.4f, 2.0f}, Vec3{1.0f, 0.3f, 0.3f}});
-    getWorld().addComponent(rightPaddle, AIController{6.0f, ball});
-    getWorld().addComponent(rightPaddle, PaddleCollider{60.0f});
+    getWorld().addComponent(rightPaddle, Sprite{Vec2{PADDLE_WIDTH, PADDLE_HEIGHT}, AI_PADDLE_COLOR});
+    getWorld().addComponent(rightPaddle, AIController{AI_PADDLE_SPEED, ball});
+    getWorld().addComponent(rightPaddle, PaddleCollider{PADDLE_MAX_REFLECTION_ANGLE});
 
     // Create Top Wall
     Entity topWall = getWorld().createEntity();
     getWorld().addComponent(topWall, Transform{0.0f, m_viewHeight/2});
-    getWorld().addComponent(topWall, BoxCollider{m_viewWidth, 0.5f});
-    getWorld().addComponent(topWall, Sprite{Vec2{m_viewWidth, 0.5f}, Vec3{0.4f, 0.4f, 0.4f}});
+    getWorld().addComponent(topWall, BoxCollider{m_viewWidth, WALL_THICKNESS});
+    getWorld().addComponent(topWall, Sprite{Vec2{m_viewWidth, WALL_THICKNESS}, WALL_COLOR});
 
     // Create Bottom Wall
     Entity bottomWall = getWorld().createEntity();
     getWorld().addComponent(bottomWall, Transform{0.0f, -m_viewHeight/2});
-    getWorld().addComponent(bottomWall, BoxCollider{m_viewWidth, 0.5f});
-    getWorld().addComponent(bottomWall, Sprite{Vec2{m_viewWidth, 0.5f}, Vec3{0.4f, 0.4f, 0.4f}});
+    getWorld().addComponent(bottomWall, BoxCollider{m_viewWidth, WALL_THICKNESS});
+    getWorld().addComponent(bottomWall, Sprite{Vec2{m_viewWidth, WALL_THICKNESS}, WALL_COLOR});
 
     // Create Score Display Entities
     m_leftScoreText = getWorld().createEntity();
-    getWorld().addComponent(m_leftScoreText, Transform{-m_viewWidth/4, m_viewHeight/2 - 2.0f});
-    getWorld().addComponent(m_leftScoreText, Text{"0", Vec3{0.3f, 0.7f, 1.0f}, 2.0f, TextAlign::Center});
+    getWorld().addComponent(m_leftScoreText, Transform{-m_viewWidth/SCORE_HORIZONTAL_DIVISOR, m_viewHeight/2 - SCORE_VERTICAL_OFFSET});
+    getWorld().addComponent(m_leftScoreText, Text{SCORE_INITIAL_VALUE, PLAYER_PADDLE_COLOR, SCORE_TEXT_SIZE, TextAlign::Center});
 
     m_rightScoreText = getWorld().createEntity();
-    getWorld().addComponent(m_rightScoreText, Transform{m_viewWidth/4, m_viewHeight/2 - 2.0f});
-    getWorld().addComponent(m_rightScoreText, Text{"0", Vec3{1.0f, 0.3f, 0.3f}, 2.0f, TextAlign::Center});
+    getWorld().addComponent(m_rightScoreText, Transform{m_viewWidth/SCORE_HORIZONTAL_DIVISOR, m_viewHeight/2 - SCORE_VERTICAL_OFFSET});
+    getWorld().addComponent(m_rightScoreText, Text{SCORE_INITIAL_VALUE, AI_PADDLE_COLOR, SCORE_TEXT_SIZE, TextAlign::Center});
 }
 
 void PongGameScreen::update(float deltaTime) {
-    const float FIXED_DT = 1.0f / 60.0f;
-
     // Cap delta time to prevent spiral of death
-    if (deltaTime > 0.25f) {
-        deltaTime = 0.25f;
+    if (deltaTime > MAX_DELTA_TIME) {
+        deltaTime = MAX_DELTA_TIME;
     }
 
     m_accumulator += deltaTime;
 
     // Fixed update loop
-    while (m_accumulator >= FIXED_DT) {
+    while (m_accumulator >= FIXED_TIMESTEP) {
         // Update systems in order
-        m_inputSystem.update(getWorld(), FIXED_DT);
-        m_aiSystem.update(getWorld(), FIXED_DT);
-        m_movementSystem.update(getWorld(), FIXED_DT);
-        m_paddleCollisionSystem.update(getWorld(), FIXED_DT);
-        m_collisionSystem.update(getWorld(), FIXED_DT);
-        m_ballSystem.update(getWorld(), FIXED_DT);
+        m_inputSystem.update(getWorld(), FIXED_TIMESTEP);
+        m_aiSystem.update(getWorld(), FIXED_TIMESTEP);
+        m_movementSystem.update(getWorld(), FIXED_TIMESTEP);
+        m_paddleCollisionSystem.update(getWorld(), FIXED_TIMESTEP);
+        m_collisionSystem.update(getWorld(), FIXED_TIMESTEP);
+        m_ballSystem.update(getWorld(), FIXED_TIMESTEP);
 
         // Update score displays
         auto& leftText = getWorld().getComponent<Text>(m_leftScoreText);
@@ -112,7 +111,7 @@ void PongGameScreen::update(float deltaTime) {
         leftText.content = std::to_string(m_ballSystem.getLeftScore());
         rightText.content = std::to_string(m_ballSystem.getRightScore());
 
-        m_accumulator -= FIXED_DT;
+        m_accumulator -= FIXED_TIMESTEP;
     }
 
     // Check for game over
@@ -136,7 +135,7 @@ void PongGameScreen::update(float deltaTime) {
 
 void PongGameScreen::render() {
     // Clear screen
-    glClearColor(0.1f, 0.1f, 0.15f, 1.0f);
+    glClearColor(BACKGROUND_COLOR.x, BACKGROUND_COLOR.y, BACKGROUND_COLOR.z, BACKGROUND_ALPHA);
     glClear(GL_COLOR_BUFFER_BIT);
 
     // Render sprites and text

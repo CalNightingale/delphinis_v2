@@ -2,6 +2,7 @@
 #include "PongGameScreen.h"
 #include "delphinis/components/Transform.h"
 #include "delphinis/components/Text.h"
+#include "constants/PongConstants.h"
 #include <GLFW/glfw3.h>
 
 namespace delphinis {
@@ -38,18 +39,18 @@ EndScreen::EndScreen(
 void EndScreen::onEnter() {
     // Create win message text
     Entity winText = getWorld().createEntity();
-    getWorld().addComponent(winText, Transform{0.0f, 2.0f});
+    getWorld().addComponent(winText, Transform{0.0f, WIN_TEXT_Y_POSITION});
 
     if (m_playerWon) {
-        getWorld().addComponent(winText, Text{"YOU WIN", Vec3{0.3f, 0.7f, 1.0f}, 3.0f, TextAlign::Center});
+        getWorld().addComponent(winText, Text{WIN_MESSAGE_PLAYER, PLAYER_PADDLE_COLOR, WIN_TEXT_SIZE, TextAlign::Center});
     } else {
-        getWorld().addComponent(winText, Text{"RED WINS", Vec3{1.0f, 0.3f, 0.3f}, 3.0f, TextAlign::Center});
+        getWorld().addComponent(winText, Text{WIN_MESSAGE_AI, AI_PADDLE_COLOR, WIN_TEXT_SIZE, TextAlign::Center});
     }
 
     // Create instructions text
     Entity instructionsText = getWorld().createEntity();
-    getWorld().addComponent(instructionsText, Transform{0.0f, -2.0f});
-    getWorld().addComponent(instructionsText, Text{"Press ENTER to play again", Vec3{0.7f, 0.7f, 0.7f}, 1.0f, TextAlign::Center});
+    getWorld().addComponent(instructionsText, Transform{0.0f, INSTRUCTIONS_Y_POSITION});
+    getWorld().addComponent(instructionsText, Text{RESTART_MESSAGE, INSTRUCTIONS_COLOR, INSTRUCTIONS_TEXT_SIZE, TextAlign::Center});
 }
 
 void EndScreen::update(float deltaTime) {
@@ -59,7 +60,7 @@ void EndScreen::update(float deltaTime) {
 
 void EndScreen::render() {
     // Clear screen with dark background
-    glClearColor(0.1f, 0.1f, 0.15f, 1.0f);
+    glClearColor(BACKGROUND_COLOR.x, BACKGROUND_COLOR.y, BACKGROUND_COLOR.z, BACKGROUND_ALPHA);
     glClear(GL_COLOR_BUFFER_BIT);
 
     // Render text
@@ -68,7 +69,7 @@ void EndScreen::render() {
 
 bool EndScreen::handleInput(GLFWwindow* window) {
     // ENTER key starts a new game
-    if (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS) {
+    if (glfwGetKey(window, RESTART_KEY) == GLFW_PRESS) {
         // Create a fresh game screen
         auto newGameScreen = std::make_unique<PongGameScreen>(
             m_renderSystem, m_textRenderSystem, m_movementSystem,

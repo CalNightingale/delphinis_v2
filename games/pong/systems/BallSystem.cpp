@@ -3,6 +3,7 @@
 #include "../components/Ball.h"
 #include "../../../include/delphinis/components/Transform.h"
 #include "../../../include/delphinis/components/Velocity.h"
+#include "../constants/PongConstants.h"
 #include <cmath>
 #include <cstdlib>
 
@@ -21,27 +22,27 @@ void BallSystem::update(World& world, float deltaTime) {
                 m_rightScore++;
 
                 // Reset ball to center
-                transform.position = Vec2{0.0f, 0.0f};
+                transform.position = BALL_RESET_POSITION;
 
                 // Random direction (left or right, with some vertical component)
-                float randomY = (rand() % 200 - 100) / 50.0f;  // -2.0 to 2.0
-                velocity.velocity = Vec2{5.0f, randomY};
+                float randomY = (rand() % BALL_RANDOM_Y_RANGE - BALL_RANDOM_Y_OFFSET) / BALL_RANDOM_Y_DIVISOR;
+                velocity.velocity = Vec2{BALL_RESET_VELOCITY_X, randomY};
             }
             else if (transform.position.x > m_viewWidth / 2) {
                 // Left player scored
                 m_leftScore++;
 
                 // Reset ball to center
-                transform.position = Vec2{0.0f, 0.0f};
+                transform.position = BALL_RESET_POSITION;
 
                 // Random direction (left or right, with some vertical component)
-                float randomY = (rand() % 200 - 100) / 50.0f;  // -2.0 to 2.0
-                velocity.velocity = Vec2{-5.0f, randomY};
+                float randomY = (rand() % BALL_RANDOM_Y_RANGE - BALL_RANDOM_Y_OFFSET) / BALL_RANDOM_Y_DIVISOR;
+                velocity.velocity = Vec2{-BALL_RESET_VELOCITY_X, randomY};
             }
 
             // Maintain constant speed
             float currentSpeed = velocity.velocity.length();
-            if (currentSpeed > 0.1f) {
+            if (currentSpeed > BALL_MIN_SPEED_CHECK) {
                 velocity.velocity = velocity.velocity.normalize() * ball.speed;
             }
         }

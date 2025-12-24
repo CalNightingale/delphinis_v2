@@ -5,6 +5,7 @@
 #include "../../../include/delphinis/components/Velocity.h"
 #include "../components/Ball.h"
 #include "../components/PaddleCollider.h"
+#include "../constants/PongConstants.h"
 #include <cmath>
 #include <algorithm>
 #include <iostream>
@@ -99,7 +100,6 @@ Vec2 PaddleCollisionSystem::calculatePaddleReflection(const Vec2& ballVelocity,
     normalizedOffset = std::max(-1.0f, std::min(1.0f, normalizedOffset));
 
     // Convert max angle to radians
-    const float PI = 3.14159265359f;
     float maxAngleRad = maxAngleDegrees * PI / 180.0f;
 
     // Map normalized offset to angle (-maxAngle to +maxAngle)
