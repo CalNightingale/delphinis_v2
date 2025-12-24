@@ -1,9 +1,9 @@
 #include "AISystem.h"
-#include "../../../include/delphinis/ecs/World.h"
-#include "../components/AIController.h"
-#include "../../../include/delphinis/components/Transform.h"
-#include "../../../include/delphinis/components/Velocity.h"
-#include "../constants/PongConstants.h"
+#include <delphinis/ecs/World.h>
+#include "components/AIController.h"
+#include <delphinis/components/Transform.h>
+#include <delphinis/components/Velocity.h>
+#include "constants/PongConstants.h"
 #include <cmath>
 
 namespace delphinis {

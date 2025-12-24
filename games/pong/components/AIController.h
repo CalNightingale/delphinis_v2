@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../../include/delphinis/ecs/Entity.h"
+#include <delphinis/ecs/Entity.h>
 
 namespace delphinis {
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../../include/delphinis/math/Vec2.h"
+#include <delphinis/math/Vec2.h>
 
 namespace delphinis {
 

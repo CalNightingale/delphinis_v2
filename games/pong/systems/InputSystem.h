@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../../include/delphinis/ecs/System.h"
+#include <delphinis/ecs/System.h>
 #include <GLFW/glfw3.h>
 
 namespace delphinis {

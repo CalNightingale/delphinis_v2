@@ -1,8 +1,8 @@
 #pragma once
 
-#include "../../../include/delphinis/ecs/System.h"
-#include "../../../include/delphinis/ecs/Entity.h"
-#include "../../../include/delphinis/math/Vec2.h"
+#include <delphinis/ecs/System.h>
+#include <delphinis/ecs/Entity.h>
+#include <delphinis/math/Vec2.h>
 
 namespace delphinis {
 

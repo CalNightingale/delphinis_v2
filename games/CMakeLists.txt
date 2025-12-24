@@ -7,7 +7,10 @@ function(add_game GAME_NAME)
     add_executable(${GAME_NAME} ${GAME_SOURCES})
 
     # Include game-specific directories for headers
-    target_include_directories(${GAME_NAME} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/${GAME_NAME}")
+    target_include_directories(${GAME_NAME} PRIVATE
+        "${CMAKE_SOURCE_DIR}/include"
+        "${CMAKE_CURRENT_SOURCE_DIR}/${GAME_NAME}"
+    )
 
     if(EMSCRIPTEN)
         # Emscripten-specific settings

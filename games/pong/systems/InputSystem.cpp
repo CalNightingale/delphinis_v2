@@ -1,10 +1,10 @@
 #include "InputSystem.h"
-#include "../../../include/delphinis/ecs/World.h"
-#include "../components/PaddleInput.h"
-#include "../../../include/delphinis/components/Velocity.h"
-#include "../../../include/delphinis/components/Transform.h"
-#include "../../../include/delphinis/components/Sprite.h"
-#include "../constants/PongConstants.h"
+#include <delphinis/ecs/World.h>
+#include "components/PaddleInput.h"
+#include <delphinis/components/Velocity.h>
+#include <delphinis/components/Transform.h>
+#include <delphinis/components/Sprite.h>
+#include "constants/PongConstants.h"
 
 namespace delphinis {
 

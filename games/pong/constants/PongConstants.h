@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../../../include/delphinis/math/Vec2.h"
-#include "../../../include/delphinis/components/Sprite.h"
+#include <delphinis/math/Vec2.h>
+#include <delphinis/components/Sprite.h>
 #include <GLFW/glfw3.h>
 
 namespace delphinis {
