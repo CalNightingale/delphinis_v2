@@ -87,7 +87,7 @@ int main() {
     // Create Systems (owned by main, shared by screens)
     RenderSystem renderSystem(viewWidth, viewHeight);
     MovementSystem movementSystem;
-    InputSystem inputSystem(window);
+    InputSystem inputSystem(window, viewHeight);
     AISystem aiSystem;
     CollisionSystem collisionSystem;
     PaddleCollisionSystem paddleCollisionSystem;

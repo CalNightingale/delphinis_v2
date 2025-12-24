@@ -7,12 +7,13 @@ namespace delphinis {
 
 class InputSystem : public System {
 public:
-    InputSystem(GLFWwindow* window);
+    InputSystem(GLFWwindow* window, float viewHeight);
 
     void update(World& world, float deltaTime) override;
 
 private:
     GLFWwindow* m_window;
+    float m_viewHeight;
 };
 
 } // namespace delphinis
