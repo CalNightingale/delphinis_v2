@@ -62,12 +62,15 @@ private:
     struct PoolWrapper {
         void* pool;
         void (*deleter)(void*);
+        void (*removeEntity)(void*, Entity); // Function to remove entity from pool
 
-        PoolWrapper(void* p, void (*d)(void*)) : pool(p), deleter(d) {}
+        PoolWrapper(void* p, void (*d)(void*), void (*r)(void*, Entity))
+            : pool(p), deleter(d), removeEntity(r) {}
         ~PoolWrapper() { deleter(pool); }
     };
 
     std::unordered_map<std::type_index, std::unique_ptr<PoolWrapper>> m_componentPools;
+    std::vector<std::type_index> m_componentTypes; // Registry of all component types
 
     template<typename T>
     void ensureComponentPool();
@@ -145,7 +148,14 @@ void World::ensureComponentPool() {
     if (m_componentPools.find(typeIndex) == m_componentPools.end()) {
         auto* pool = new ComponentPool<T>();
         auto deleter = [](void* p) { delete static_cast<ComponentPool<T>*>(p); };
-        m_componentPools[typeIndex] = std::make_unique<PoolWrapper>(pool, deleter);
+        auto remover = [](void* p, Entity e) {
+            auto* typedPool = static_cast<ComponentPool<T>*>(p);
+            if (typedPool->has(e)) {
+                typedPool->remove(e);
+            }
+        };
+        m_componentPools[typeIndex] = std::make_unique<PoolWrapper>(pool, deleter, remover);
+        m_componentTypes.push_back(typeIndex); // Track this component type
     }
 }
 
