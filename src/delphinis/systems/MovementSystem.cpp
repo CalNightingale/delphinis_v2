@@ -6,13 +6,11 @@
 namespace delphinis {
 
 void MovementSystem::update(World& world, float deltaTime) {
-    for (Entity entity : world.getEntities()) {
-        if (world.hasComponents<Transform, Velocity>(entity)) {
-            auto& transform = world.getComponent<Transform>(entity);
-            const auto& velocity = world.getComponent<Velocity>(entity);
+    for (Entity entity : world.query<Transform, Velocity>()) {
+        auto& transform = world.getComponent<Transform>(entity);
+        const auto& velocity = world.getComponent<Velocity>(entity);
 
-            transform.position = transform.position + velocity.velocity * deltaTime;
-        }
+        transform.position = transform.position + velocity.velocity * deltaTime;
     }
 }
 

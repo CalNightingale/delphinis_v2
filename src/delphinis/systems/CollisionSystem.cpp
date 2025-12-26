@@ -8,16 +8,18 @@
 namespace delphinis {
 
 void CollisionSystem::update(World& world, float deltaTime) {
-    const auto& entities = world.getEntities();
+    // Collect entities with Transform and BoxCollider components
+    std::vector<Entity> colliders;
+    for (Entity entity : world.query<Transform, BoxCollider>()) {
+        colliders.push_back(entity);
+    }
 
     // Check all pairs of entities for collisions
-    for (size_t i = 0; i < entities.size(); i++) {
-        Entity e1 = entities[i];
-        if (!world.hasComponents<Transform, BoxCollider>(e1)) continue;
+    for (size_t i = 0; i < colliders.size(); i++) {
+        Entity e1 = colliders[i];
 
-        for (size_t j = i + 1; j < entities.size(); j++) {
-            Entity e2 = entities[j];
-            if (!world.hasComponents<Transform, BoxCollider>(e2)) continue;
+        for (size_t j = i + 1; j < colliders.size(); j++) {
+            Entity e2 = colliders[j];
 
             const auto& t1 = world.getComponent<Transform>(e1);
             const auto& c1 = world.getComponent<BoxCollider>(e1);

@@ -14,21 +14,13 @@ namespace delphinis {
 
 void PaddleCollisionSystem::update(World& world, float deltaTime) {
     // Find all balls
-    for (Entity ballEntity : world.getEntities()) {
-        if (!world.hasComponents<Ball, Transform, BoxCollider, Velocity>(ballEntity)) {
-            continue;
-        }
-
+    for (Entity ballEntity : world.query<Ball, Transform, BoxCollider, Velocity>()) {
         auto& ballTransform = world.getComponent<Transform>(ballEntity);
         const auto& ballCollider = world.getComponent<BoxCollider>(ballEntity);
         auto& ballVelocity = world.getComponent<Velocity>(ballEntity);
 
         // Check collision with all paddles
-        for (Entity paddleEntity : world.getEntities()) {
-            if (!world.hasComponents<PaddleCollider, Transform>(paddleEntity)) {
-                continue;
-            }
-
+        for (Entity paddleEntity : world.query<PaddleCollider, Transform>()) {
             const auto& paddleTransform = world.getComponent<Transform>(paddleEntity);
             const auto& paddleCollisionData = world.getComponent<PaddleCollider>(paddleEntity);
 

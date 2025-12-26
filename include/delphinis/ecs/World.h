@@ -10,6 +10,10 @@
 
 namespace delphinis {
 
+// Forward declaration
+template<typename... Components>
+class View;
+
 class World {
 public:
     World();
@@ -18,7 +22,6 @@ public:
     // Entity management
     Entity createEntity();
     void destroyEntity(Entity entity);
-    const std::vector<Entity>& getEntities() const;
 
     // Component management
     template<typename T>
@@ -39,6 +42,10 @@ public:
     // Multiple component queries
     template<typename T1, typename T2, typename... Rest>
     bool hasComponents(Entity entity) const;
+
+    // Entity query with iterator
+    template<typename... Components>
+    View<Components...> query() const;
 
     // Component pool access
     template<typename T>
@@ -140,6 +147,18 @@ void World::ensureComponentPool() {
         auto deleter = [](void* p) { delete static_cast<ComponentPool<T>*>(p); };
         m_componentPools[typeIndex] = std::make_unique<PoolWrapper>(pool, deleter);
     }
+}
+
+} // namespace delphinis
+
+// Include View here to avoid circular dependency
+#include "View.h"
+
+namespace delphinis {
+
+template<typename... Components>
+View<Components...> World::query() const {
+    return View<Components...>(*this, m_entities);
 }
 
 } // namespace delphinis

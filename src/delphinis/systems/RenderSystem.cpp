@@ -19,18 +19,16 @@ RenderSystem::RenderSystem(float viewWidth, float viewHeight)
 void RenderSystem::update(World& world, float deltaTime) {
     glClear(GL_COLOR_BUFFER_BIT);
 
-    for (Entity entity : world.getEntities()) {
-        if (world.hasComponents<Transform, Sprite>(entity)) {
-            const auto& transform = world.getComponent<Transform>(entity);
-            const auto& sprite = world.getComponent<Sprite>(entity);
+    for (Entity entity : world.query<Transform, Sprite>()) {
+        const auto& transform = world.getComponent<Transform>(entity);
+        const auto& sprite = world.getComponent<Sprite>(entity);
 
-            m_quadRenderer.drawQuad(
-                transform.position,
-                sprite.size,
-                sprite.color,
-                m_camera
-            );
-        }
+        m_quadRenderer.drawQuad(
+            transform.position,
+            sprite.size,
+            sprite.color,
+            m_camera
+        );
     }
 }
 

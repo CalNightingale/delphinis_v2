@@ -24,10 +24,9 @@ void TextRenderingSystem::update(World& world, float deltaTime) {
 
     GLuint fontTexture = m_fontAtlas.getTextureId();
 
-    for (Entity entity : world.getEntities()) {
-        if (world.hasComponents<Transform, Text>(entity)) {
-            const auto& transform = world.getComponent<Transform>(entity);
-            const auto& text = world.getComponent<Text>(entity);
+    for (Entity entity : world.query<Transform, Text>()) {
+        const auto& transform = world.getComponent<Transform>(entity);
+        const auto& text = world.getComponent<Text>(entity);
 
             // Calculate scale to achieve desired world height
             // Font line height in pixels (e.g., 20px)
@@ -93,7 +92,6 @@ void TextRenderingSystem::update(World& world, float deltaTime) {
                 // Advance cursor
                 cursorPos.x += glyph.advance * worldScale;
             }
-        }
     }
 
     glDisable(GL_BLEND);

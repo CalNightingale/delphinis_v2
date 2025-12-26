@@ -26,8 +26,4 @@ void World::destroyEntity(Entity entity) {
     // If needed, could iterate through all component pools and remove components
 }
 
-const std::vector<Entity>& World::getEntities() const {
-    return m_entities;
-}
-
 } // namespace delphinis
