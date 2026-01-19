@@ -19,10 +19,14 @@
 #include "delphinis/systems/MovementSystem.h"
 #include "delphinis/systems/CollisionSystem.h"
 #include "systems/PaddleCollisionSystem.h"
+#include "systems/WallCollisionSystem.h"
 #include "systems/BallSystem.h"
 #include "delphinis/systems/RenderSystem.h"
 #include "delphinis/systems/TextRenderingSystem.h"
 #include "delphinis/renderer/Camera.h"
+
+// Audio
+#include "delphinis/audio/AudioManager.h"
 
 using namespace delphinis;
 
@@ -84,14 +88,33 @@ int main() {
     // Create Camera
     Camera camera(viewWidth, viewHeight);
 
+    // Initialize audio
+    AudioManager audioManager;
+    if (!audioManager.initialize()) {
+        std::cerr << "Warning: Audio initialization failed, continuing without sound" << std::endl;
+    }
+
+    // Load sound effects
+    SoundId paddleSound, wallSound, scoreSound;
+#ifdef __EMSCRIPTEN__
+    paddleSound = audioManager.loadSound("/games/pong/assets/pong_paddle.wav");
+    wallSound = audioManager.loadSound("/games/pong/assets/pong_wall.wav");
+    scoreSound = audioManager.loadSound("/games/pong/assets/pong_score.wav");
+#else
+    paddleSound = audioManager.loadSound("../games/pong/assets/pong_paddle.wav");
+    wallSound = audioManager.loadSound("../games/pong/assets/pong_wall.wav");
+    scoreSound = audioManager.loadSound("../games/pong/assets/pong_score.wav");
+#endif
+
     // Create Systems (owned by main, shared by screens)
     RenderSystem renderSystem(viewWidth, viewHeight);
     MovementSystem movementSystem;
     InputSystem inputSystem(window, viewHeight);
     AISystem aiSystem;
     CollisionSystem collisionSystem;
-    PaddleCollisionSystem paddleCollisionSystem;
-    BallSystem ballSystem(viewWidth);
+    PaddleCollisionSystem paddleCollisionSystem(audioManager, paddleSound);
+    WallCollisionSystem wallCollisionSystem(audioManager, wallSound);
+    BallSystem ballSystem(viewWidth, audioManager, scoreSound);
 
 #ifdef __EMSCRIPTEN__
     TextRenderingSystem textRenderSystem(camera, "/games/pong/assets/bit5x3.ttf");
@@ -105,7 +128,8 @@ int main() {
     // Create game screen (pass system references)
     auto gameScreen = std::make_unique<PongGameScreen>(
         renderSystem, textRenderSystem, movementSystem,
-        collisionSystem, paddleCollisionSystem, inputSystem, aiSystem, ballSystem,
+        collisionSystem, paddleCollisionSystem, wallCollisionSystem,
+        inputSystem, aiSystem, ballSystem,
         viewWidth, viewHeight
     );
 
@@ -154,6 +178,8 @@ int main() {
     }
 #endif
 
+    // Cleanup
+    audioManager.shutdown();
     glfwTerminate();
     return 0;
 }

@@ -4,12 +4,11 @@
 #include <delphinis/components/Transform.h>
 #include <delphinis/components/Velocity.h>
 #include "constants/PongConstants.h"
-#include <cmath>
 #include <cstdlib>
 
 namespace delphinis {
 
-void BallSystem::update(World& world, float deltaTime) {
+void BallSystem::update(World& world, float /*deltaTime*/) {
     for (Entity entity : world.query<Ball, Transform, Velocity>()) {
         const auto& ball = world.getComponent<Ball>(entity);
         auto& transform = world.getComponent<Transform>(entity);
@@ -19,6 +18,11 @@ void BallSystem::update(World& world, float deltaTime) {
         if (transform.position.x < -m_viewWidth / 2) {
             // Right player scored
             m_rightScore++;
+
+            // Play score sound
+            if (m_audioManager) {
+                m_audioManager->playSound(m_scoreSound);
+            }
 
             // Reset ball to center
             transform.position = BALL_RESET_POSITION;
@@ -30,6 +34,11 @@ void BallSystem::update(World& world, float deltaTime) {
         else if (transform.position.x > m_viewWidth / 2) {
             // Left player scored
             m_leftScore++;
+
+            // Play score sound
+            if (m_audioManager) {
+                m_audioManager->playSound(m_scoreSound);
+            }
 
             // Reset ball to center
             transform.position = BALL_RESET_POSITION;

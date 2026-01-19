@@ -10,6 +10,7 @@
 #include "systems/AISystem.h"
 #include "systems/BallSystem.h"
 #include "systems/PaddleCollisionSystem.h"
+#include "systems/WallCollisionSystem.h"
 #include <memory>
 
 namespace delphinis {
@@ -23,6 +24,7 @@ public:
         MovementSystem& movementSystem,
         CollisionSystem& collisionSystem,
         PaddleCollisionSystem& paddleCollisionSystem,
+        WallCollisionSystem& wallCollisionSystem,
         InputSystem& inputSystem,
         AISystem& aiSystem,
         BallSystem& ballSystem,
@@ -47,6 +49,7 @@ private:
     MovementSystem& m_movementSystem;
     CollisionSystem& m_collisionSystem;
     PaddleCollisionSystem& m_paddleCollisionSystem;
+    WallCollisionSystem& m_wallCollisionSystem;
     InputSystem& m_inputSystem;
     AISystem& m_aiSystem;
     BallSystem& m_ballSystem;

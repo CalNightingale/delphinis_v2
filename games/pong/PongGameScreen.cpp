@@ -9,6 +9,7 @@
 #include "components/AIController.h"
 #include "components/Ball.h"
 #include "components/PaddleCollider.h"
+#include "components/Wall.h"
 #include "constants/PongConstants.h"
 #include <GLFW/glfw3.h>
 
@@ -20,6 +21,7 @@ PongGameScreen::PongGameScreen(
     MovementSystem& movementSystem,
     CollisionSystem& collisionSystem,
     PaddleCollisionSystem& paddleCollisionSystem,
+    WallCollisionSystem& wallCollisionSystem,
     InputSystem& inputSystem,
     AISystem& aiSystem,
     BallSystem& ballSystem,
@@ -31,6 +33,7 @@ PongGameScreen::PongGameScreen(
     , m_movementSystem(movementSystem)
     , m_collisionSystem(collisionSystem)
     , m_paddleCollisionSystem(paddleCollisionSystem)
+    , m_wallCollisionSystem(wallCollisionSystem)
     , m_inputSystem(inputSystem)
     , m_aiSystem(aiSystem)
     , m_ballSystem(ballSystem)
@@ -70,12 +73,14 @@ void PongGameScreen::onEnter() {
     getWorld().addComponent(topWall, Transform{0.0f, m_viewHeight/2});
     getWorld().addComponent(topWall, BoxCollider{m_viewWidth, WALL_THICKNESS});
     getWorld().addComponent(topWall, Sprite{Vec2{m_viewWidth, WALL_THICKNESS}, WALL_COLOR});
+    getWorld().addComponent(topWall, Wall{WallType::Top});
 
     // Create Bottom Wall
     Entity bottomWall = getWorld().createEntity();
     getWorld().addComponent(bottomWall, Transform{0.0f, -m_viewHeight/2});
     getWorld().addComponent(bottomWall, BoxCollider{m_viewWidth, WALL_THICKNESS});
     getWorld().addComponent(bottomWall, Sprite{Vec2{m_viewWidth, WALL_THICKNESS}, WALL_COLOR});
+    getWorld().addComponent(bottomWall, Wall{WallType::Bottom});
 
     // Create Score Display Entities
     m_leftScoreText = getWorld().createEntity();
@@ -102,6 +107,7 @@ void PongGameScreen::update(float deltaTime) {
         m_aiSystem.update(getWorld(), FIXED_TIMESTEP);
         m_movementSystem.update(getWorld(), FIXED_TIMESTEP);
         m_paddleCollisionSystem.update(getWorld(), FIXED_TIMESTEP);
+        m_wallCollisionSystem.update(getWorld(), FIXED_TIMESTEP);
         m_collisionSystem.update(getWorld(), FIXED_TIMESTEP);
         m_ballSystem.update(getWorld(), FIXED_TIMESTEP);
 
@@ -125,7 +131,8 @@ void PongGameScreen::update(float deltaTime) {
         auto endScreen = std::make_unique<EndScreen>(
             m_textRenderSystem, *m_screenManager,
             m_renderSystem, m_movementSystem,
-            m_collisionSystem, m_paddleCollisionSystem, m_inputSystem, m_aiSystem, m_ballSystem,
+            m_collisionSystem, m_paddleCollisionSystem, m_wallCollisionSystem,
+            m_inputSystem, m_aiSystem, m_ballSystem,
             m_viewWidth, m_viewHeight, playerWon
         );
 

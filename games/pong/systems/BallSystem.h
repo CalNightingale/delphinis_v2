@@ -1,12 +1,18 @@
 #pragma once
 
 #include <delphinis/ecs/System.h>
+#include <delphinis/audio/AudioManager.h>
 
 namespace delphinis {
 
 class BallSystem : public System {
 public:
-    BallSystem(float viewWidth) : m_viewWidth(viewWidth), m_leftScore(0), m_rightScore(0) {}
+    BallSystem(float viewWidth)
+        : m_viewWidth(viewWidth), m_leftScore(0), m_rightScore(0) {}
+
+    BallSystem(float viewWidth, AudioManager& audioManager, SoundId scoreSound)
+        : m_viewWidth(viewWidth), m_leftScore(0), m_rightScore(0),
+          m_audioManager(&audioManager), m_scoreSound(scoreSound) {}
 
     void update(World& world, float deltaTime) override;
 
@@ -21,6 +27,8 @@ private:
     float m_viewWidth;
     int m_leftScore;
     int m_rightScore;
+    AudioManager* m_audioManager = nullptr;
+    SoundId m_scoreSound = INVALID_SOUND_ID;
 };
 
 } // namespace delphinis

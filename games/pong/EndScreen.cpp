@@ -14,6 +14,7 @@ EndScreen::EndScreen(
     MovementSystem& movementSystem,
     CollisionSystem& collisionSystem,
     PaddleCollisionSystem& paddleCollisionSystem,
+    WallCollisionSystem& wallCollisionSystem,
     InputSystem& inputSystem,
     AISystem& aiSystem,
     BallSystem& ballSystem,
@@ -27,6 +28,7 @@ EndScreen::EndScreen(
     , m_movementSystem(movementSystem)
     , m_collisionSystem(collisionSystem)
     , m_paddleCollisionSystem(paddleCollisionSystem)
+    , m_wallCollisionSystem(wallCollisionSystem)
     , m_inputSystem(inputSystem)
     , m_aiSystem(aiSystem)
     , m_ballSystem(ballSystem)
@@ -73,7 +75,8 @@ bool EndScreen::handleInput(GLFWwindow* window) {
         // Create a fresh game screen
         auto newGameScreen = std::make_unique<PongGameScreen>(
             m_renderSystem, m_textRenderSystem, m_movementSystem,
-            m_collisionSystem, m_paddleCollisionSystem, m_inputSystem, m_aiSystem, m_ballSystem,
+            m_collisionSystem, m_paddleCollisionSystem, m_wallCollisionSystem,
+            m_inputSystem, m_aiSystem, m_ballSystem,
             m_viewWidth, m_viewHeight
         );
 

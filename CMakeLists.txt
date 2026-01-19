@@ -41,6 +41,7 @@ endif()
 include_directories(
     ${PROJECT_SOURCE_DIR}/include
     ${PROJECT_SOURCE_DIR}/lib
+    ${PROJECT_SOURCE_DIR}/lib/miniaudio
     ${OPENGL_INCLUDE_DIR}
 )
 
@@ -69,6 +70,8 @@ if(ENGINE_SOURCES)
                 "-framework Cocoa"
                 "-framework IOKit"
                 "-framework CoreVideo"
+                "-framework CoreAudio"
+                "-framework AudioToolbox"
             )
         endif()
 

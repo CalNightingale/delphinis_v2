@@ -12,7 +12,13 @@
 
 namespace delphinis {
 
-void PaddleCollisionSystem::update(World& world, float deltaTime) {
+PaddleCollisionSystem::PaddleCollisionSystem(AudioManager& audioManager, SoundId paddleSound)
+    : m_audioManager(&audioManager)
+    , m_paddleSound(paddleSound)
+{
+}
+
+void PaddleCollisionSystem::update(World& world, float /*deltaTime*/) {
     // Find all balls
     for (Entity ballEntity : world.query<Ball, Transform, BoxCollider, Velocity>()) {
         auto& ballTransform = world.getComponent<Transform>(ballEntity);
@@ -54,6 +60,11 @@ void PaddleCollisionSystem::update(World& world, float deltaTime) {
                     std::cout << "  REFLECTING! New vel: (" << newVelocity.x << ", " << newVelocity.y << ")" << std::endl;
 
                     ballVelocity.velocity = newVelocity;
+
+                    // Play paddle hit sound
+                    if (m_audioManager) {
+                        m_audioManager->playSound(m_paddleSound);
+                    }
 
                     // Separate ball from paddle to prevent sticky collisions
                     float overlapX = (ballCollider.halfSize.x + paddleCollisionData.halfSize.x) - std::abs(diff.x);
