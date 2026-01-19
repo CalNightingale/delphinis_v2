@@ -10,6 +10,7 @@ namespace delphinis {
 struct AudioManager::Impl {
     ma_engine engine;
     bool initialized = false;
+    bool muted = false;
     std::unordered_map<SoundId, ma_sound*> sounds;
     SoundId nextId = 1;
 };
@@ -78,7 +79,7 @@ SoundId AudioManager::loadSound(const std::string& filepath) {
 }
 
 void AudioManager::playSound(SoundId id) {
-    if (!m_impl->initialized) {
+    if (!m_impl->initialized || m_impl->muted) {
         return;
     }
 
@@ -91,6 +92,18 @@ void AudioManager::playSound(SoundId id) {
     // Seek to beginning and play
     ma_sound_seek_to_pcm_frame(it->second, 0);
     ma_sound_start(it->second);
+}
+
+void AudioManager::setMuted(bool muted) {
+    m_impl->muted = muted;
+}
+
+bool AudioManager::isMuted() const {
+    return m_impl->muted;
+}
+
+void AudioManager::toggleMute() {
+    m_impl->muted = !m_impl->muted;
 }
 
 } // namespace delphinis

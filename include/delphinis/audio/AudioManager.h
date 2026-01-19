@@ -23,6 +23,10 @@ public:
     SoundId loadSound(const std::string& filepath);
     void playSound(SoundId id);
 
+    void setMuted(bool muted);
+    bool isMuted() const;
+    void toggleMute();
+
 private:
     struct Impl;
     Impl* m_impl;

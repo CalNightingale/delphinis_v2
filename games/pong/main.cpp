@@ -78,7 +78,7 @@ int main() {
     glViewport(0, 0, windowWidth, windowHeight);
 
     std::cout << "Pong - Delphinis Engine v0.1.0" << std::endl;
-    std::cout << "Controls: W/S for left paddle, SPACE to start" << std::endl;
+    std::cout << "Controls: W/S for left paddle, SPACE to start, M to mute" << std::endl;
     std::cout << "Press ESC to exit" << std::endl;
 
     // Game view dimensions
@@ -146,6 +146,9 @@ int main() {
     // Frame time tracking
     static double lastTime = glfwGetTime();
 
+    // Mute key tracking
+    static bool mKeyWasPressed = false;
+
     // Simplified main loop
     auto mainLoop = [&]() {
         // Calculate delta time
@@ -155,6 +158,14 @@ int main() {
 
         // Fallback input handling
         processInput(window);
+
+        // Mute toggle (M key)
+        bool mKeyIsPressed = glfwGetKey(window, GLFW_KEY_M) == GLFW_PRESS;
+        if (mKeyIsPressed && !mKeyWasPressed) {
+            audioManager.toggleMute();
+            std::cout << "Audio " << (audioManager.isMuted() ? "muted" : "unmuted") << std::endl;
+        }
+        mKeyWasPressed = mKeyIsPressed;
 
         // Update and render through screen manager
         screenManager.handleInput();
