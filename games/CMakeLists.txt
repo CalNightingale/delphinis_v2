@@ -81,3 +81,12 @@ if(EMSCRIPTEN AND TARGET pong)
         --preload-file ${CMAKE_SOURCE_DIR}/games/pong/assets@/games/pong/assets
     )
 endif()
+
+add_game(missile_command)
+
+# Add preload-file for missile_command game assets (for web build)
+if(EMSCRIPTEN AND TARGET missile_command)
+    target_link_options(missile_command PRIVATE
+        --preload-file ${CMAKE_SOURCE_DIR}/games/missile_command/assets@/games/missile_command/assets
+    )
+endif()
